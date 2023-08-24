@@ -13,6 +13,7 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(ORBIT_BUILD_DOCS "Build the Orbit documentation" ON)
+option(ORBIT_BUILD_TESTS "Run tests" ON)
 
 if (ORBIT_BUILD_DOCS)
    set(DOXYGEN_SKIP_DOT TRUE)
@@ -21,4 +22,8 @@ endif()
 
 if (DOXYGEN_FOUND AND ORBIT_BUILD_DOCS)
    add_subdirectory(docs)
+endif()
+
+if (ORBIT_BUILD_TESTS)
+   add_subdirectory(tests)
 endif()
