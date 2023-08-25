@@ -1,3 +1,4 @@
+# build subdir
 build
 
 CMakeCache.txt
@@ -16,3 +17,12 @@ src/glfw_config.h
 src/glfw3.pc
 src/glfw3Config.cmake
 src/glfw3ConfigVersion.cmake
+
+# Compiled binaries
+src/libglfw.so
+src/libglfw.so.3
+src/libglfw.so.3.4
+src/libglfw.dylib
+src/libglfw.3.dylib
+src/libglfw.3.4.dylib
+src/libglfw3.a
