@@ -68,7 +68,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @Orbit_SOURCE_DIR@/docs
+OUTPUT_DIRECTORY       = "@Orbit_SOURCE_DIR@/docs"
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
@@ -816,7 +816,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            = @Orbit_SOURCE_DIR@/docs/DoxygenLayout.xml
+LAYOUT_FILE            = "@Orbit_SOURCE_DIR@/docs/DoxygenLayout.xml"
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -932,7 +932,7 @@ WARN_LINE_FORMAT       = "at line $line of file $file"
 # specified the warning and error messages are written to standard output
 # (stdout).
 
-WARN_LOGFILE           = @Orbit_BINARY_DIR@/docs/warnings.txt
+WARN_LOGFILE           = "@Orbit_BINARY_DIR@/docs/warnings.txt"
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
