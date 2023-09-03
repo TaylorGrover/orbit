@@ -11,8 +11,11 @@ const char *WINDOW_TITLE = "Orbit";
 void configure_window_hints()
 {
     // glfw: configure window hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLFW_VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLFW_VERSION_MINOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+
+    // Using GLFW_VERSION_MINOR makes the window uncreatable for some reason, so
+    //   a hardcoded 3 is used
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -60,6 +63,12 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    while(!glfwWindowShouldClose(window)) {
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
     glfwTerminate();
     return 0;

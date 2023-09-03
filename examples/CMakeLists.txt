@@ -34,6 +34,7 @@ add_executable(qtwindow WIN32 MACOSX_BUNDLE qtwindow.cpp ${ICON} ${GLAD_GL})
 
 # Target link library for custom app
 target_link_libraries(qtwindow PRIVATE glad ${CMAKE_DL_LIBS})
+target_compile_options(qtwindow PRIVATE "-Wall" "-g")
 
 set(GUI_ONLY_BINARIES qtwindow)
 

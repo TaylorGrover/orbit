@@ -80,7 +80,6 @@ GLFWbool _glfwSelectPlatform(int desiredID, _GLFWplatform* platform)
     else if (count == 0)
     {
         _glfwInputError(GLFW_PLATFORM_UNAVAILABLE, "This binary only supports the Null platform");
-        printf("count == 0\n");
         return GLFW_FALSE;
     }
 
