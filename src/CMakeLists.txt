@@ -30,28 +30,28 @@ add_custom_target(update_mappings
 set_target_properties(update_mappings PROPERTIES FOLDER "GLFW3")
 
 if (Orbit_BUILD_COCOA)
-    target_compile_definitions(glfw PRIVATE _Orbit_COCOA)
+    target_compile_definitions(glfw PRIVATE _GLFW_COCOA)
     target_sources(glfw PRIVATE cocoa_platform.h cocoa_joystick.h cocoa_init.m
                                 cocoa_joystick.m cocoa_monitor.m cocoa_window.m
                                 nsgl_context.m)
 endif()
 
 if (Orbit_BUILD_WIN32)
-    target_compile_definitions(glfw PRIVATE _Orbit_WIN32)
+    target_compile_definitions(glfw PRIVATE _GLFW_WIN32)
     target_sources(glfw PRIVATE win32_platform.h win32_joystick.h win32_init.c
                                 win32_joystick.c win32_monitor.c win32_window.c
                                 wgl_context.c)
 endif()
 
 if (Orbit_BUILD_X11)
-    target_compile_definitions(glfw PRIVATE _Orbit_X11)
+    target_compile_definitions(glfw PRIVATE _GLFW_X11)
     target_sources(glfw PRIVATE x11_platform.h xkb_unicode.h x11_init.c
                                 x11_monitor.c x11_window.c xkb_unicode.c
                                 glx_context.c )
 endif()
 
 if (Orbit_BUILD_WAYLAND)
-    target_compile_definitions(glfw PRIVATE _Orbit_WAYLAND)
+    target_compile_definitions(glfw PRIVATE _GLFW_WAYLAND)
     target_sources(glfw PRIVATE wl_platform.h xkb_unicode.h wl_init.c
                                 wl_monitor.c wl_window.c xkb_unicode.c)
 endif()
@@ -134,7 +134,7 @@ set_target_properties(glfw PROPERTIES
                       POSITION_INDEPENDENT_CODE ON
                       C_STANDARD 99
                       C_EXTENSIONS OFF
-                      DEFINE_SYMBOL _Orbit_BUILD_DLL
+                      DEFINE_SYMBOL _GLFW_BUILD_DLL
                       FOLDER "GLFW3")
 
 target_include_directories(glfw PUBLIC
@@ -258,7 +258,7 @@ endif()
 
 if (WIN32)
     if (Orbit_USE_HYBRID_HPG)
-        target_compile_definitions(glfw PRIVATE _Orbit_USE_HYBRID_HPG)
+        target_compile_definitions(glfw PRIVATE _GLFW_USE_HYBRID_HPG)
     endif()
 endif()
 
@@ -270,7 +270,7 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
         CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
         CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 
-    target_compile_options(glfw PRIVATE "-Wall")
+    target_compile_options(glfw PRIVATE "-Wall" "-g")
 endif()
 
 if (Orbit_BUILD_WIN32)
@@ -347,22 +347,22 @@ if (Orbit_BUILD_SHARED_LIBRARY)
 
         # Compatibility with data execution prevention (DEP)
         set(CMAKE_REQUIRED_FLAGS "-Wl,--nxcompat")
-        check_c_compiler_flag("" _Orbit_HAS_DEP)
-        if (_Orbit_HAS_DEP)
+        check_c_compiler_flag("" _GLFW_HAS_DEP)
+        if (_GLFW_HAS_DEP)
             target_link_libraries(glfw PRIVATE "-Wl,--nxcompat")
         endif()
 
         # Compatibility with address space layout randomization (ASLR)
         set(CMAKE_REQUIRED_FLAGS "-Wl,--dynamicbase")
-        check_c_compiler_flag("" _Orbit_HAS_ASLR)
-        if (_Orbit_HAS_ASLR)
+        check_c_compiler_flag("" _GLFW_HAS_ASLR)
+        if (_GLFW_HAS_ASLR)
             target_link_libraries(glfw PRIVATE "-Wl,--dynamicbase")
         endif()
 
         # Compatibility with 64-bit address space layout randomization (ASLR)
         set(CMAKE_REQUIRED_FLAGS "-Wl,--high-entropy-va")
-        check_c_compiler_flag("" _Orbit_HAS_64ASLR)
-        if (_Orbit_HAS_64ASLR)
+        check_c_compiler_flag("" _GLFW_HAS_64ASLR)
+        if (_GLFW_HAS_64ASLR)
             target_link_libraries(glfw PRIVATE "-Wl,--high-entropy-va")
         endif()
 

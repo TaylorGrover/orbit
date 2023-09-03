@@ -422,8 +422,10 @@ GLFWAPI int glfwInit(void)
         _glfw.allocator.deallocate = defaultDeallocate;
     }
 
-    if (!_glfwSelectPlatform(_glfw.hints.init.platformID, &_glfw.platform))
+    if (!_glfwSelectPlatform(_glfw.hints.init.platformID, &_glfw.platform)) {
+        printf("Cannot select GLFW platform with given platformID and _glfw.platform\n");
         return GLFW_FALSE;
+    }
 
     if (!_glfw.platform.init())
     {
@@ -435,6 +437,7 @@ GLFWAPI int glfwInit(void)
         !_glfwPlatformCreateTls(&_glfw.errorSlot) ||
         !_glfwPlatformCreateTls(&_glfw.contextSlot))
     {
+        printf("Cannot create TLS for error/context slots or cannot create mutex for errorlock\n");
         terminate();
         return GLFW_FALSE;
     }

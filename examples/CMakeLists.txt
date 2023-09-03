@@ -28,9 +28,9 @@ set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
 set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
 
 # Add GLAD
-add_library(glad "../src/glad.c")
+add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
-add_executable(qtwindow WIN32 MACOSX_BUNDLE qtwindow.cpp ${GLAD_GL})
+add_executable(qtwindow WIN32 MACOSX_BUNDLE qtwindow.cpp ${ICON} ${GLAD_GL})
 
 # Target link library for custom app
 target_link_libraries(qtwindow PRIVATE glad ${CMAKE_DL_LIBS})

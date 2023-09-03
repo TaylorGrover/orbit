@@ -28,6 +28,7 @@
 //========================================================================
 
 #include "internal.h"
+#include <stdio.h>
 
 // These construct a string literal from individual numeric constants
 #define _GLFW_CONCAT_VERSION(m, n, r) #m "." #n "." #r
@@ -79,6 +80,7 @@ GLFWbool _glfwSelectPlatform(int desiredID, _GLFWplatform* platform)
     else if (count == 0)
     {
         _glfwInputError(GLFW_PLATFORM_UNAVAILABLE, "This binary only supports the Null platform");
+        printf("count == 0\n");
         return GLFW_FALSE;
     }
 
@@ -86,8 +88,9 @@ GLFWbool _glfwSelectPlatform(int desiredID, _GLFWplatform* platform)
     {
         // If there is exactly one platform available for auto-selection, let it emit the
         // error on failure as the platform-specific error description may be more helpful
-        if (count == 1)
+        if (count == 1) {
             return supportedPlatforms[0].connect(supportedPlatforms[0].ID, platform);
+        }
 
         for (i = 0;  i < count;  i++)
         {

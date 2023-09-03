@@ -6,6 +6,7 @@
 
 const GLuint SCR_WIDTH = 800;
 const GLuint SCR_HEIGHT = 600;
+const char *WINDOW_TITLE = "Orbit";
 
 void configure_window_hints()
 {
@@ -13,17 +14,52 @@ void configure_window_hints()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLFW_VERSION_MAJOR);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLFW_VERSION_MINOR);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 }
 
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    switch(key) {
+        case GLFW_KEY_ESCAPE:
+            // Exit program on Escape
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+            break;
+    }
+}
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // ensure viewport matches new window dimensions; note that width and 
+    //   height will be signficantly larger than specified on retina displays
+    // Specify location of the lower left corner of the first (x, y), then
+    //   the dimensions
+    glViewport(0, 0, width, height);
+}
+
 int main()
 {
-    glfwInit();
+    if(!glfwInit()) {
+        std::cerr << "Unable to initialize GLFW\n";
+        return -1;
+    }
     configure_window_hints();
+
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    if(window == NULL) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    // Register events callback
+    glfwSetKeyCallback(window, key_callback);
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glfwTerminate();
     return 0;
