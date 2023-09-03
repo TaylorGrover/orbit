@@ -50,6 +50,8 @@ int main()
         return -1;
     }
     configure_window_hints();
+    std::cout << GLFW_VERSION_MAJOR << std::endl;
+    std::cout << GLFW_VERSION_MINOR << std::endl;
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
     if(window == NULL) {

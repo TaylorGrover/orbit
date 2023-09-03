@@ -78,6 +78,7 @@ examples/sharing
 examples/triangle-opengl
 examples/wave
 examples/windows
+examples/qtwindow
 tests/*.app
 tests/*.exe
 tests/clipboard
