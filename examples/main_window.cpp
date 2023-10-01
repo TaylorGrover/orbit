@@ -37,8 +37,8 @@ float world_x = 0.0f;
 float world_y = -0;
 
 // How fast the figure moves
-float z_stride = 2.0f;
-float x_stride = 2.0f;
+float z_stride = 1.0f;
+float x_stride = 1.0f;
 
 // Figure acceleration
 float adj_acceleration = 0.5f;
@@ -207,7 +207,7 @@ int main()
          size/2, 0.0f,  0.0f,   0.5f, 0.4f, 0.1f, // right
         -size/2, 0.0f,  0.0f,   0.5f, 0.4f, 0.1f, // left
          0.0f,   0.0f, -size/4, 0.5f, 0.5f, 0.0f, // back
-         0.0f,  -size,  0.0f,   0.0f, 0.0f, 1.0f, // bottom
+         0.0f,  -size,  0.0f,   4.0f, 3.0f, 3.0f, // bottom
     };
 
     GLuint indices[] = {
