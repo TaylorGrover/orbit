@@ -55,12 +55,12 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${Orbit_SOURCE_DIR}/CMake/modules")
 
 find_package(Threads REQUIRED)
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt5 COMPONENTS Core REQUIRED)
+#find_package(Qt5 COMPONENTS Widgets REQUIRED)
+#find_package(Qt5 COMPONENTS Core REQUIRED)
 
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
 
-set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
+#set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
 
 if (Orbit_BUILD_DOCS)
     set(DOXYGEN_SKIP_DOT TRUE)
