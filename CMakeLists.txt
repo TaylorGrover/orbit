@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.20 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16...3.20 FATAL_ERROR)
 
 project(Orbit VERSION 3.4.0 LANGUAGES C CXX)
 
@@ -22,6 +22,7 @@ option(Orbit_INSTALL "Generate installation target" ON)
 
 include(GNUInstallDirs)
 include(CMakeDependentOption)
+include(CTest) # Include CTest https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html
 
 if (Orbit_USE_OSMESA)
     message(FATAL_ERROR "Orbit_USE_OSMESA has been removed; set the Orbit_PLATFORM init hint")
@@ -54,6 +55,12 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${Orbit_SOURCE_DIR}/CMake/modules")
 
 find_package(Threads REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core REQUIRED)
+
+set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
+
+set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
 
 if (Orbit_BUILD_DOCS)
     set(DOXYGEN_SKIP_DOT TRUE)

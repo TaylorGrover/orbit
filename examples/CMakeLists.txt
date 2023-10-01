@@ -2,6 +2,9 @@ link_libraries(glfw)
 
 include_directories("${Orbit_SOURCE_DIR}/deps" "${Orbit_SOURCE_DIR}/include")
 
+# Ensure gdb debugging is enabled and all warnings are set
+add_compile_options("-Wall" "-g")
+
 if (MATH_LIBRARY)
     link_libraries("${MATH_LIBRARY}")
 endif()
@@ -30,13 +33,17 @@ set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
 # Add GLAD
 add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
-add_executable(qtwindow WIN32 MACOSX_BUNDLE qtwindow.cpp ${ICON} ${GLAD_GL})
+add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER})
+add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
 # Target link library for custom app
-target_link_libraries(qtwindow PRIVATE glad ${CMAKE_DL_LIBS})
-target_compile_options(qtwindow PRIVATE "-Wall" "-g")
+target_link_libraries(main_window PRIVATE glad ${CMAKE_DL_LIBS})
+target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
 
-set(GUI_ONLY_BINARIES qtwindow)
+target_compile_options(main_window PRIVATE "-Wall" "-g" "-std=c++17")
+target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++17")
+
+set(GUI_ONLY_BINARIES main_window)
 
 if (MSVC)
     # Tell MSVC to use main instead of WinMain
@@ -48,5 +55,5 @@ elseif (CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
 endif()
 
 if (APPLE)
-    set_target_properties(qtwindow PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Qtwindow")
+    set_target_properties(main_window PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Qtwindow")
 endif()

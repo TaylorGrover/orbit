@@ -1,0 +1,19 @@
+Start testing: Sep 28 15:47 MDT
+----------------------------------------------------------
+1/1 Testing: GLMTest
+1/1 Test: GLMTest
+Command: "/home/jonaz/Documents/prog/orbit/tests/test_glm"
+Directory: /home/jonaz/Documents/prog/orbit/tests
+"GLMTest" start time: Sep 28 15:47 MDT
+Output:
+----------------------------------------------------------
+[-8.74228e-08, 3, 2, 1]
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"GLMTest" end time: Sep 28 15:47 MDT
+"GLMTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 28 15:47 MDT
