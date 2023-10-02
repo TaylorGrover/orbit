@@ -35,15 +35,18 @@ add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
 add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER})
 add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER})
+add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
 # Target link library for custom app
 target_link_libraries(main_window PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
+target_link_libraries(perlin PRIVATE glad ${CMAKE_DL_LIBS})
 
 target_compile_options(main_window PRIVATE "-Wall" "-g" "-std=c++17")
 target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++17")
+target_compile_options(perlin PRIVATE "-Wall" "-g" "-std=c++2a")
 
-set(GUI_ONLY_BINARIES main_window)
+set(GUI_ONLY_BINARIES main_window perlin)
 
 if (MSVC)
     # Tell MSVC to use main instead of WinMain

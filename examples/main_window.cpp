@@ -140,6 +140,9 @@ std::vector<float> generateSphereVertices(float radius, GLuint rings, GLuint sec
             vertices.push_back(x * radius);
             vertices.push_back(y * radius);
             vertices.push_back(z * radius);
+            vertices.push_back(1.0);
+            vertices.push_back(0.0);
+            vertices.push_back(0.0);
         }
     }
     return vertices;
@@ -196,12 +199,12 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Generate vertices for sphere
-    //std::vector<float> vertices_vector = generateSphereVertices(.5, 100, 100);
-    //std::vector<GLuint> indices_vector = generateSphereIndices(vertices_vector);
+    std::vector<float> vertices_vector = generateSphereVertices(500, 100, 100);
+    std::vector<GLuint> indices_vector = generateSphereIndices(vertices_vector);
 
     // 3D Diamond
     float size = 20;
-    float vertices[] = {
+    /*float vertices[] = {
          0.0f,   size,  0.0f,   1.0f, 0.0f, 0.0f, // top
          0.0f,   0.0f,  size/4, 0.5f, 0.5f, 0.0f, // front
          size/2, 0.0f,  0.0f,   0.5f, 0.4f, 0.1f, // right
@@ -219,7 +222,12 @@ int main()
         5, 1, 3,
         5, 4, 2,
         5, 4, 3,
-    }; 
+    }; */
+
+    float vertices[vertices_vector.size()];
+    for(GLuint i = 0; i < vertices_vector.size(); i++) { vertices[i] = vertices_vector[i]; }
+    GLuint indices[indices_vector.size()];
+    for(GLuint i = 0; i < indices_vector.size(); i++) { indices[i] = indices_vector[i]; }
 
     // Setup textures
     /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
