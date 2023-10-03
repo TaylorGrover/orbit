@@ -22,7 +22,7 @@ const char *WINDOW_TITLE = "Orbit";
 const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 
 // Rotation speed (degrees/second)
-const float ROT_SPEED = 80;
+const float ROT_SPEED = 0;
 
 // FOV
 const float FOV = 85;
@@ -42,6 +42,11 @@ float x_stride = 1.0f;
 
 // Figure acceleration
 float adj_acceleration = 0.5f;
+
+// Cursor tracking coordinates
+double cursor_x = SCR_WIDTH, cursor_y = SCR_HEIGHT;
+double diff_x, diff_y;
+glm::vec3 camera_axis(0.0, 1.0, 0.0);
 
 // Normal distribution
 const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -109,6 +114,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
+static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    diff_x = xpos - cursor_x;
+    diff_y = ypos - cursor_y;
+}
+
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     // ensure viewport matches new window dimensions; note that width and 
@@ -148,14 +159,30 @@ std::vector<float> generateSphereVertices(float radius, GLuint rings, GLuint sec
     return vertices;
 }
 
-std::vector<GLuint> generateSphereIndices(std::vector<float>& vertices)
+std::vector<GLuint> generateSphereIndices(std::vector<float>& vertices, GLuint rings, GLuint sectors)
 {
     std::vector<GLuint> indices;
     GLuint i;
-    for(i = 0; i < vertices.size() - 2; i += 3) {
+    // TODO: debug this 
+    for(i = 0; i < vertices.size() - sectors - 2 - 10000; i += 3) {
         indices.push_back(i);
         indices.push_back(i + 1);
+        indices.push_back(i + sectors - 1);
+        indices.push_back(i + 1);
+        indices.push_back(i + sectors - 1);
+        indices.push_back(i + sectors);
+        indices.push_back(i + 1);
         indices.push_back(i + 2);
+        indices.push_back(i + sectors);
+        indices.push_back(i + 2);
+        indices.push_back(i + sectors);
+        indices.push_back(i + sectors + 1);
+        indices.push_back(i + 2);
+        indices.push_back(i + 3);
+        indices.push_back(i + sectors + 1);
+        indices.push_back(i + 3);
+        indices.push_back(i + sectors + 1);
+        indices.push_back(i + sectors + 2);
     }
     std::cout << i << std::endl;
     return indices;
@@ -172,6 +199,7 @@ int main()
     configureWindowHints();
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
     if(window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -181,6 +209,14 @@ int main()
 
     // Register events callback
     glfwSetKeyCallback(window, keyCallback);
+
+    // Capture mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
+    if(glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -196,11 +232,12 @@ int main()
     glDepthMask(GL_TRUE);
 
     // Wireframe mode (must be called after gladLoadGLLoader
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Generate vertices for sphere
-    std::vector<float> vertices_vector = generateSphereVertices(500, 100, 100);
-    std::vector<GLuint> indices_vector = generateSphereIndices(vertices_vector);
+    GLuint rings = 100, sectors = 100;
+    std::vector<float> vertices_vector = generateSphereVertices(500, rings, sectors);
+    std::vector<GLuint> indices_vector = generateSphereIndices(vertices_vector, rings, sectors);
 
     // 3D Diamond
     float size = 20;
@@ -282,7 +319,6 @@ int main()
     glm::mat4 local(1.0); // Local transformation;
     glm::mat4 model(1.0); // Model transformation; where is it in the world?
     glm::mat4 view(1.0);  // The vieeeeew (camera)
-    view = glm::translate(view, glm::vec3(0.0, 0.0, world_z));
 
     glm::mat4 projection(1.0); // Orthographic or perspective projection
     projection = glm::perspective(glm::radians(85.0f), (float) SCR_WIDTH / (float) SCR_HEIGHT, NEAR, 4000.0f);
@@ -305,13 +341,18 @@ int main()
         duration = stop - start;
         // Randomly adjust rotation axis
 
-        local = glm::rotate(local, glm::radians(duration * (ROT_SPEED - 2 * world_z)), rot_axis);
+        //local = glm::rotate(local, glm::radians(duration * (ROT_SPEED - 2 * world_z)), rot_axis);
         //adjust_rot_axis(rot_axis);
+        
         view = glm::translate(Ident, glm::vec3(world_x, world_y, world_z));
         shader.setTransform("local", local);
         shader.setTransform("model", model);
         shader.setTransform("view", view);
         shader.setTransform("projection", projection);
+
+        // Reset camera deltas
+        diff_x = 0; diff_y = 0;
+
         shader.use();
         start = (float) glfwGetTime();
 
