@@ -23,7 +23,7 @@ const char *WINDOW_TITLE = "Orbit";
 const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 
 // Rotation speed (degrees/second)
-const float ROT_SPEED = 0;
+const float ROT_SPEED = 5;
 
 // FOV
 const float FOV = 85;
@@ -40,18 +40,21 @@ float z_stride = 1.0f;
 float x_stride = 1.0f;
 
 // Figure acceleration
-glm::vec3 adj_acceleration;
+float acc_magnitude = 2.0;
 
 // Cursor tracking coordinates
 double cursor_x = SCR_WIDTH / 2, cursor_y = SCR_HEIGHT / 2;
 double diff_x, diff_y;
-double camera_rot_velocity = .1;
+const double camera_rot_velocity = .25;
 
 // Camera rotation globals
 glm::vec3 camera_right(1.0, 0.0, 0.0);
 glm::vec3 camera_up(0.0, 1.0, 0.0);
 glm::vec3 camera_back = glm::cross(camera_right, camera_up);
+glm::vec3 camera_vel = camera_back;
 glm::mat4 camera_rot(1.0);
+float vel_magnitude = 1.0;
+const float max_velocity = 10;
     
 // Normal distribution
 const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -107,21 +110,20 @@ void updateCameraRotation(glm::mat4& rot, glm::vec3& camera_right, glm::vec3& ca
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-        adj_acceleration = glm::normalize(camera_back);
         if(key == GLFW_KEY_ESCAPE) {
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
         if(key == GLFW_KEY_W) {
-            camera_position += camera_back;
-            camera_back += adj_acceleration;
+            camera_position += vel_magnitude * camera_back;
+            if(vel_magnitude < max_velocity) vel_magnitude += acc_magnitude;
             /*std::cout << "Current position: ";
             for(int i = 0; i < 3; i++) {std::cout << camera_position[i] << " ";}
             std::cout << std::endl; 
             */
         }
         if(key == GLFW_KEY_S) {
-            camera_position -= camera_back;
-            camera_back += adj_acceleration;
+            camera_position -= vel_magnitude * camera_back;
+            if(vel_magnitude < max_velocity) vel_magnitude += acc_magnitude;
         }
         if(key == GLFW_KEY_A) {
             // TODO
@@ -131,8 +133,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         }
     }
     else if(action == GLFW_RELEASE) {
-        // Reset velocities
-        camera_back = glm::cross(camera_right, camera_up);
+        // Reset velocity
+        vel_magnitude = 1.0;
     }
 }
 
@@ -176,9 +178,9 @@ std::vector<float> generateSphereVertices(float radius, GLuint rings, GLuint sec
             vertices.push_back(x * radius);
             vertices.push_back(y * radius);
             vertices.push_back(z * radius);
-            vertices.push_back(1.0);
-            vertices.push_back(0.0);
-            vertices.push_back(0.0);
+            vertices.push_back(10.0 / 255);
+            vertices.push_back(148.0 / 255);
+            vertices.push_back(228.0 / 255);
         }
     }
     return vertices;
@@ -189,7 +191,7 @@ std::vector<GLuint> generateSphereIndices(std::vector<float>& vertices, GLuint r
     std::vector<GLuint> indices;
     GLuint i;
     // TODO: debug this 
-    for(i = 0; i < vertices.size() - sectors - 2; i += 3) {
+    for(i = 0; i < vertices.size() - sectors - 4; i += 3) {
         for(int j = 1; j <= 3; j++) {
             indices.push_back(i + j - 1);
             indices.push_back(i + j);
@@ -250,9 +252,9 @@ int main()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Generate vertices for sphere
-    GLuint rings = 100, sectors = 100;
-    std::vector<float> vertices_vector = generateSphereVertices(500, rings, sectors);
-    std::vector<GLuint> indices_vector = generateSphereIndices(vertices_vector, rings, sectors);
+    GLuint rings = 200, sectors = 200;
+    std::vector<float> vertices = generateSphereVertices(5000, rings, sectors);
+    std::vector<GLuint> indices = generateSphereIndices(vertices, rings, sectors);
 
     // 3D Diamond
     /*float size = 20;
@@ -276,10 +278,6 @@ int main()
         5, 4, 3,
     }; */
 
-    float vertices[vertices_vector.size()];
-    for(GLuint i = 0; i < vertices_vector.size(); i++) { vertices[i] = vertices_vector[i]; }
-    GLuint indices[indices_vector.size()];
-    for(GLuint i = 0; i < indices_vector.size(); i++) { indices[i] = indices_vector[i]; }
 
     // Setup textures
     /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -311,13 +309,13 @@ int main()
     glGenBuffers(1, &EBO);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
@@ -341,8 +339,8 @@ int main()
     glm::vec3 rot_axis(0.0, 1.0, 0.0);
     
     // Maintain rotation speed
-    //float start = (float)glfwGetTime();
-    //float stop, duration;
+    float start = (float)glfwGetTime();
+    float stop, duration;
 
     // Reset the 
 
@@ -354,8 +352,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1, 0.1, 1.0f);
 
-        //stop = (float) glfwGetTime();
-        //duration = stop - start;
+        stop = (float) glfwGetTime();
+        duration = stop - start;
 
         // Rotate the camera view to the current position then perform any 
         //   updates on the rotation matrix
@@ -367,6 +365,8 @@ int main()
         
         diff_x = 0;
         diff_y = 0;
+
+        local = glm::rotate(local, glm::radians(ROT_SPEED * duration), rot_axis);
         
         shader.setTransform("local", local);
         shader.setTransform("model", model);
@@ -374,10 +374,10 @@ int main()
         shader.setTransform("projection", projection);
 
         shader.use();
-        //start = (float) glfwGetTime();
+        start = (float) glfwGetTime();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
