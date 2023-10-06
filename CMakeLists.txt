@@ -115,6 +115,24 @@ include(CMakePackageConfigHelpers)
 
 set(Orbit_CONFIG_PATH "${CMAKE_INSTALL_LIBDIR}/cmake/glfw3")
 
+#--------------------------------------
+# Libraries to include in compilation
+#--------------------------------------
+set(CAMERA "${Orbit_SOURCE_DIR}/deps/camera.cpp"
+           "${Orbit_SOURCE_DIR}/deps/camera.hpp")
+set(GLAD_GL "${Orbit_SOURCE_DIR}/deps/glad/gl.h")
+set(GLAD_GLES2 "${Orbit_SOURCE_DIR}/deps/glad/gles2.h")
+set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
+           "${Orbit_SOURCE_DIR}/deps/getopt.c")
+set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
+          "${Orbit_SOURCE_DIR}/deps/input.cpp")
+set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
+           "${Orbit_SOURCE_DIR}/deps/shader.cpp")
+set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
+set(TINYCTHREAD "${Orbit_SOURCE_DIR}/deps/tinycthread.h"
+                "${Orbit_SOURCE_DIR}/deps/tinycthread.c")
+
+
 configure_package_config_file(CMake/glfw3Config.cmake.in
                               src/glfw3Config.cmake
                               INSTALL_DESTINATION "${Orbit_CONFIG_PATH}"

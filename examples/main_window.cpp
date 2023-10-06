@@ -1,12 +1,14 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
+#include <camera.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <input.hpp>
 #include <qtwindow.h>
 #include <shader.h>
 #include <random>
@@ -14,8 +16,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-const GLuint SCR_WIDTH = 1800;
-const GLuint SCR_HEIGHT = 1200;
+const GLuint SCR_WIDTH = 2400;
+const GLuint SCR_HEIGHT = 1600;
 const GLuint MAXDIST = 1000;
 const char *WINDOW_TITLE = "Orbit";
 
@@ -23,7 +25,7 @@ const char *WINDOW_TITLE = "Orbit";
 const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 
 // Rotation speed (degrees/second)
-const float ROT_SPEED = 5;
+const float ROT_SPEED = 0;
 
 // FOV
 const float FOV = 85;
@@ -45,16 +47,15 @@ float acc_magnitude = 2.0;
 // Cursor tracking coordinates
 double cursor_x = SCR_WIDTH / 2, cursor_y = SCR_HEIGHT / 2;
 double diff_x, diff_y;
-const double camera_rot_velocity = .25;
+
+// The key input selection
+const int KEY_COUNT = 349;
+bool selected[KEY_COUNT];
+Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
+
 
 // Camera rotation globals
-glm::vec3 camera_right(1.0, 0.0, 0.0);
-glm::vec3 camera_up(0.0, 1.0, 0.0);
-glm::vec3 camera_back = glm::cross(camera_right, camera_up);
-glm::vec3 camera_vel = camera_back;
-glm::mat4 camera_rot(1.0);
-float vel_magnitude = 1.0;
-const float max_velocity = 10;
+Camera camera(keyCursorInput, camera_position, glm::mat4(1.0));
     
 // Normal distribution
 const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -89,62 +90,14 @@ void adjust_rot_axis(glm::vec3& rot_axis)
     rot_axis = glm::normalize(rot_axis);
 }
 
-void updateCameraRotation(glm::mat4& rot, glm::vec3& camera_right, glm::vec3& camera_up)
-{
-    // Use the global diff_x and diff_y to update the camera axis positions
-    glm::mat4 trans = glm::transpose(rot);
-    camera_right = glm::vec3(trans * glm::vec4(1.0, 0.0, 0.0, 1.0));
-    camera_up = glm::vec3(trans * glm::vec4(0.0, 1.0, 0.0, 1.0));
-    camera_back = glm::cross(camera_right, camera_up);
-    /*int i;
-    std::cout << "Right: ";
-    for(i = 0; i < 3; i++) {std::cout << camera_right[i] << " ";}
-    std::cout << "Up: ";
-    for(i = 0; i < 3; i++) {std::cout << camera_up[i] << " ";}
-    std::cout << "Back: ";
-    for(i = 0; i < 3; i++) {std::cout << camera_back[i] << " ";}
-    std::cout << "Dot: " << glm::dot(camera_right, camera_up);
-    std::cout << std::endl; */
-}
-
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-        if(key == GLFW_KEY_ESCAPE) {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
-        if(key == GLFW_KEY_W) {
-            camera_position += vel_magnitude * camera_back;
-            if(vel_magnitude < max_velocity) vel_magnitude += acc_magnitude;
-            /*std::cout << "Current position: ";
-            for(int i = 0; i < 3; i++) {std::cout << camera_position[i] << " ";}
-            std::cout << std::endl; 
-            */
-        }
-        if(key == GLFW_KEY_S) {
-            camera_position -= vel_magnitude * camera_back;
-            if(vel_magnitude < max_velocity) vel_magnitude += acc_magnitude;
-        }
-        if(key == GLFW_KEY_A) {
-            // TODO
-        }
-        if(key == GLFW_KEY_D) {
-            // TODO
-        }
-    }
-    else if(action == GLFW_RELEASE) {
-        // Reset velocity
-        vel_magnitude = 1.0;
-    }
+    camera.input.keyCallback(window, key, scancode, action, mods);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    //std::cout << "cursor_x: " << cursor_x <<"\tcursor_y: " << cursor_y << "\txpos: " << xpos << "\typos: " << ypos << std::endl;
-    diff_x = xpos - cursor_x;
-    diff_y = ypos - cursor_y;
-    cursor_x = xpos;
-    cursor_y = ypos;
+    camera.input.cursorPositionCallback(window, xpos, ypos);
 }
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -331,12 +284,15 @@ int main()
     glm::mat4 Ident(1.0);
     glm::mat4 local(1.0); // Local transformation;
     glm::mat4 model(1.0); // Model transformation; where is it in the world?
+    
+    // Camera
     glm::mat4 view(1.0);  // The vieeeeew (camera)
 
     glm::mat4 projection(1.0); // Orthographic or perspective projection
     projection = glm::perspective(glm::radians(FOV), (float) SCR_WIDTH / (float) SCR_HEIGHT, NEAR, FAR);
 
     glm::vec3 rot_axis(0.0, 1.0, 0.0);
+
     
     // Maintain rotation speed
     float start = (float)glfwGetTime();
@@ -357,17 +313,15 @@ int main()
 
         // Rotate the camera view to the current position then perform any 
         //   updates on the rotation matrix
-        view = glm::rotate(camera_rot, (float) glm::radians(diff_x * camera_rot_velocity), camera_up);
-        view = glm::rotate(view, (float) glm::radians(diff_y * camera_rot_velocity), camera_right);
-        camera_rot = view;
-        updateCameraRotation(camera_rot, camera_right, camera_up);
-        view = glm::translate(camera_rot, camera_position);
+        camera.updateCameraOrientation();
+        camera.updatePosition();
+        view = camera.getView();
         
-        diff_x = 0;
-        diff_y = 0;
+        camera.input.resetDiff();
 
         local = glm::rotate(local, glm::radians(ROT_SPEED * duration), rot_axis);
         
+        // Place in a loop for each object 
         shader.setTransform("local", local);
         shader.setTransform("model", model);
         shader.setTransform("view", view);

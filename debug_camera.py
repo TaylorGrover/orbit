@@ -22,7 +22,7 @@ def read_data():
     with open("camera_out.txt", "r") as camera_file:
         data = camera_file.readlines()
         if len(data) > 0:
-            vals = data.split()
+            vals = data[-1].split()
             u = np.array(list(map(float, vals[1:4])))
             v = np.array(list(map(float, vals[5:8])))
             return u, v

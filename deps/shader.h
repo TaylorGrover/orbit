@@ -1,9 +1,10 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef SSHADER_H
+#define SSHADER_H
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -29,7 +30,7 @@ class Shader
         void setFloat(const std::string &name, float value) const;
         void setTransform(const std::string &name, glm::mat4& trans);
 
-        // Offset
+        // The integer ID of the uniform with the given name
         int getUniform(const char *name);
 };
 

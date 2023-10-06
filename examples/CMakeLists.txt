@@ -20,20 +20,10 @@ elseif(APPLE)
     set(ICON glfw.icns)
 endif()
 
-set(GLAD_GL "${Orbit_SOURCE_DIR}/deps/glad/gl.h")
-set(GLAD_GLES2 "${Orbit_SOURCE_DIR}/deps/glad/gles2.h")
-set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
-           "${Orbit_SOURCE_DIR}/deps/getopt.c")
-set(TINYCTHREAD "${Orbit_SOURCE_DIR}/deps/tinycthread.h"
-                "${Orbit_SOURCE_DIR}/deps/tinycthread.c")
-set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
-           "${Orbit_SOURCE_DIR}/deps/shader.cpp")
-set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
-
 # Add GLAD
 add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
-add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER})
+add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT})
 add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER})
 add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
@@ -42,8 +32,8 @@ target_link_libraries(main_window PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(perlin PRIVATE glad ${CMAKE_DL_LIBS})
 
-target_compile_options(main_window PRIVATE "-Wall" "-g" "-std=c++17")
-target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++17")
+target_compile_options(main_window PRIVATE "-Wall" "-g" "-std=c++2a")
+target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++2a")
 target_compile_options(perlin PRIVATE "-Wall" "-g" "-std=c++2a")
 
 set(GUI_ONLY_BINARIES main_window perlin)
