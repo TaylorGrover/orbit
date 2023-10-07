@@ -24,6 +24,9 @@ include(GNUInstallDirs)
 include(CMakeDependentOption)
 include(CTest) # Include CTest https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html
 
+# Include directory visibility for tests and examples
+include_directories("${Orbit_SOURCE_DIR}/deps" "${Orbit_SOURCE_DIR}/include")
+
 if (Orbit_USE_OSMESA)
     message(FATAL_ERROR "Orbit_USE_OSMESA has been removed; set the Orbit_PLATFORM init hint")
 endif()
