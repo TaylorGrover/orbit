@@ -13,6 +13,10 @@ const int KEYS_COUNT = 349;
 // Rotation speed multiplier
 const float camera_rot_velocity = .25;
 
+/**
+ * @class Input
+ * @brief Modify internal state from keystrokes and cursor movements
+*/
 class Input {
     private:
         bool pressed[KEYS_COUNT];

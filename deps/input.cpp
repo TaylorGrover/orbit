@@ -3,6 +3,9 @@
 
 extern const GLuint SCR_WIDTH, SCR_HEIGHT;
 
+/**
+ * 
+*/
 Input::Input()
 {
     cursor_x = 800;

@@ -7,10 +7,8 @@
 
 const float max_velocity = 13;
 
-Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation) 
+Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation) : input(input)
 {
-    Camera::input = input;
-    
     // Starting position of the camera
     Camera::position = position;
 
@@ -32,6 +30,7 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation)
 */
 void Camera::updateCameraOrientation()
 {
+    // Mouse movements affect the value of getDiffX
     orientation = glm::rotate(orientation, (float) glm::radians(input.getDiffX() * camera_rot_velocity), camera_up);
     orientation = glm::rotate(orientation, (float) glm::radians(input.getDiffY() * camera_rot_velocity), camera_right);
     glm::mat4 transpose = glm::transpose(orientation);

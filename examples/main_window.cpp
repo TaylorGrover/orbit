@@ -25,7 +25,7 @@ const char *WINDOW_TITLE = "Orbit";
 const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 
 // Rotation speed (degrees/second)
-const float ROT_SPEED = 0;
+const float ROT_SPEED = 3;
 
 // FOV
 const float FOV = 85;
@@ -92,12 +92,12 @@ void adjust_rot_axis(glm::vec3& rot_axis)
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    camera.input.keyCallback(window, key, scancode, action, mods);
+    keyCursorInput.keyCallback(window, key, scancode, action, mods);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    camera.input.cursorPositionCallback(window, xpos, ypos);
+    keyCursorInput.cursorPositionCallback(window, xpos, ypos);
 }
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -317,7 +317,7 @@ int main()
         camera.updatePosition();
         view = camera.getView();
         
-        camera.input.resetDiff();
+        keyCursorInput.resetDiff();
 
         local = glm::rotate(local, glm::radians(ROT_SPEED * duration), rot_axis);
         

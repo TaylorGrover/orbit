@@ -22,9 +22,9 @@ class Camera {
         float acc_magnitude;
 
         // Keyboard and cursor input management
+        Input& input;
 
     public:
-        Input input;
         Camera(Input& input, glm::vec3 position, glm::mat4 orientation);
         void updateCameraOrientation();
         void updatePosition();
