@@ -1,6 +1,13 @@
 #include "shader.h"
 
+Shader::Shader() {}
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
+{
+    setShaderPaths(vertexPath, fragmentPath);
+}
+
+void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -87,7 +94,7 @@ void Shader::remove()
     glDeleteProgram(this->ID);
 }
 
-void Shader::setTransform(const std::string &name, glm::mat4& trans)
+void Shader::setTransform(const std::string &name, const glm::mat4& trans)
 {
     unsigned int uniformID = glGetUniformLocation(this->ID, name.c_str());
     glUniformMatrix4fv(uniformID, 1, GL_FALSE, glm::value_ptr(trans));

@@ -11,6 +11,7 @@
 #include <input.hpp>
 #include <qtwindow.h>
 #include <shader.h>
+#include <sphere.hpp>
 #include <random>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -19,10 +20,11 @@
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 const GLuint MAXDIST = 1000;
+const GLuint NUM_SPHERES = 5;
 const char *WINDOW_TITLE = "Orbit";
 
 // Aspect ratio
-const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
+const float ASPECT_RATIO = static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT);
 
 // Rotation speed (degrees/second)
 const float ROT_SPEED = 3;
@@ -32,10 +34,10 @@ const float FOV = 85;
 
 // Near and far clipping plane distances
 const float NEAR = 0.01f;
-const float FAR = 100000;
+const float FAR = 10000000;
 
 // Starting camera position
-glm::vec3 camera_position(0.0, 0.0, -50.0);
+glm::vec3 camera_position(0.0, 0.0, -500.0);
 
 // How fast the figure moves
 float z_stride = 1.0f;
@@ -109,55 +111,6 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-std::vector<float> generateSphereVertices(float radius, GLuint rings, GLuint sectors)
-{
-    std::vector<float> vertices;
-    const float PI = 3.14159265359;
-
-    if(rings == 0 || sectors == 0) {
-        std::cerr << "One of rings or sectors is 0. Defaulting both to 100\n";
-        rings = 100; sectors = 100;
-    }
-
-    float const R = 1.0f / (float)(rings - 1);
-    float const S = 1.0f / (float)(sectors - 1);
-
-    for (GLuint r = 0; r < rings; r++) {
-        for(GLuint s = 0; s < sectors; s++) {
-            float const y = sin(-PI / 2 + PI * r * R);
-            float const x = cos(2 * PI * s * S) * sin(PI * R * r);
-            float const z = sin(2 * PI * s * S) * sin(PI * R * r);
-
-            vertices.push_back(x * radius);
-            vertices.push_back(y * radius);
-            vertices.push_back(z * radius);
-            vertices.push_back(10.0 / 255);
-            vertices.push_back(148.0 / 255);
-            vertices.push_back(228.0 / 255);
-        }
-    }
-    return vertices;
-}
-
-std::vector<GLuint> generateSphereIndices(std::vector<float>& vertices, GLuint rings, GLuint sectors)
-{
-    std::vector<GLuint> indices;
-    GLuint i;
-    // TODO: debug this 
-    for(i = 0; i < vertices.size() - sectors - 4; i += 3) {
-        for(int j = 1; j <= 3; j++) {
-            indices.push_back(i + j - 1);
-            indices.push_back(i + j);
-            indices.push_back(i + sectors + j - 1);
-
-            indices.push_back(i + j);
-            indices.push_back(i + sectors + j - 1);
-            indices.push_back(i + sectors + j);
-        }
-    }
-    return indices;
-}
-
 int main()
 {
     if(!glfwInit()) {
@@ -205,12 +158,12 @@ int main()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Generate vertices for sphere
-    GLuint rings = 200, sectors = 200;
+    /*GLuint rings = 200, sectors = 200;
     std::vector<float> vertices = generateSphereVertices(5000, rings, sectors);
     std::vector<GLuint> indices = generateSphereIndices(vertices, rings, sectors);
 
     // 3D Diamond
-    /*float size = 20;
+    float size = 20;
     float vertices[] = {
          0.0f,   size,  0.0f,   1.0f, 0.0f, 0.0f, // top
          0.0f,   0.0f,  size/4, 0.5f, 0.5f, 0.0f, // front
@@ -229,11 +182,11 @@ int main()
         5, 1, 3,
         5, 4, 2,
         5, 4, 3,
-    }; */
+    }; 
 
 
     // Setup textures
-    /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -252,38 +205,38 @@ int main()
     }
     stbi_image_free(data); */
 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    Shader shader = Shader("shaders/shader.vs", "shaders/shader.fs"); 
+    //Sphere sphere(50, shader);
 
     //glEnableVertexAttribArray(2);
     //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    
 
-    Shader shader = Shader("shaders/shader.vs", "shaders/shader.fs");
 
-    glm::mat4 Ident(1.0);
+    std::vector<Sphere> spheres;
+    std::vector<glm::vec3> locations;
+    // Uniform distribution for radii and normal for spatial locations
+    std::uniform_real_distribution<float> radii_dist(50, 150);
+    std::normal_distribution<float> locations_dist(0, 1000);
+    GLuint i;
     glm::mat4 local(1.0); // Local transformation;
     glm::mat4 model(1.0); // Model transformation; where is it in the world?
+    for(i = 0; i < NUM_SPHERES; i++) {
+        float radius = radii_dist(rand_engine);
+        locations.push_back(glm::vec3(0.0));
+        for(GLuint j = 0; j < 3; j++) {
+            locations[i][j] = locations_dist(rand_engine);
+        }
+        spheres.push_back(Sphere(radius, shader));
+        spheres[i].setPosition(locations[i]);
+        spheres[i].generateBuffers();
+        // Must bind vertex array before VBO and EBO
+        spheres[i].bindVertexArray();
+        spheres[i].bindVBO();
+        spheres[i].bindEBO();
+        spheres[i].enableAttributes();
+        glBindVertexArray(0);
+    }
     
     // Camera
     glm::mat4 view(1.0);  // The vieeeeew (camera)
@@ -319,19 +272,23 @@ int main()
         
         keyCursorInput.resetDiff();
 
-        local = glm::rotate(local, glm::radians(ROT_SPEED * duration), rot_axis);
+        //model = glm::rotate(model, glm::radians(ROT_SPEED * duration), rot_axis);
         
         // Place in a loop for each object 
-        shader.setTransform("local", local);
-        shader.setTransform("model", model);
-        shader.setTransform("view", view);
-        shader.setTransform("projection", projection);
+        //shader.setTransform("local", local);
+        for(Sphere& sphere : spheres) {
+            sphere.bindVertexArray();
+            sphere.rotateByDegrees(2, rot_axis);
 
-        shader.use();
+            shader.setTransform("model", sphere.getModelMatrix());
+            shader.setTransform("view", view);
+            shader.setTransform("projection", projection);
+
+            shader.use();
+            sphere.drawElements();
+            glBindVertexArray(0);
+        }
         start = (float) glfwGetTime();
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

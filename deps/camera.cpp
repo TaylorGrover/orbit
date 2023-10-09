@@ -54,14 +54,17 @@ void Camera::updatePosition()
 {
     // This avoids large sequence of if-statements in while loop
     // Not sure if any substantial trade-offs
-    bool w, s, a, d;
+    bool w, s, a, d, shift, space;
     w = input.isKeyPressed(GLFW_KEY_W);
     s = input.isKeyPressed(GLFW_KEY_S);
     a = input.isKeyPressed(GLFW_KEY_A);
     d = input.isKeyPressed(GLFW_KEY_D);
+    shift = input.isKeyPressed(GLFW_KEY_LEFT_SHIFT);
+    space = input.isKeyPressed(GLFW_KEY_SPACE);
     position += (float) w * (vel_magnitude * camera_back);
     position -= (float) s * (vel_magnitude * camera_back);
     position += (float) a * (vel_magnitude * camera_right);
     position -= (float) d * (vel_magnitude * camera_right);
-    vel_magnitude = ((w | s | a | d) & (vel_magnitude < max_velocity)) * acc_magnitude + vel_magnitude;
+    vel_magnitude = ((w | s | a | d) & shift) * acc_magnitude + vel_magnitude;
+    if(space & (vel_magnitude > acc_magnitude + 1)) vel_magnitude -= acc_magnitude;
 }

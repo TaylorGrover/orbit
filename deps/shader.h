@@ -18,6 +18,9 @@ class Shader
 
         // constructor reads and builds the shader
         Shader(const char *vertexPath, const char* fragmentPath);
+        
+        // No arg constructor. Need to pass shader paths at some point
+        Shader();
         // use/activate the shader
         void use();
 
@@ -28,10 +31,12 @@ class Shader
         void setBool(const std::string &name, bool value) const;
         void setInt(const std::string &name, int value) const;
         void setFloat(const std::string &name, float value) const;
-        void setTransform(const std::string &name, glm::mat4& trans);
+        void setTransform(const std::string &name, const glm::mat4& trans);
 
         // The integer ID of the uniform with the given name
         int getUniform(const char *name);
+        void setShaderPaths(const char* vertexPath, const char* fragmentPath);
+
 };
 
 #endif
