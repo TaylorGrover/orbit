@@ -6,6 +6,7 @@
 #include <iostream>
 
 const float max_velocity = 13;
+const float MIN_VELOCITY = .5;
 
 Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation) : input(input)
 {
@@ -21,7 +22,7 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation) : input(
 
     // Constants to govern camera speed
     Camera::vel_magnitude = 1.0;
-    Camera::acc_magnitude = 2.0;
+    Camera::acc_magnitude = 3.0;
     
 }
 
@@ -66,5 +67,5 @@ void Camera::updatePosition()
     position += (float) a * (vel_magnitude * camera_right);
     position -= (float) d * (vel_magnitude * camera_right);
     vel_magnitude = ((w | s | a | d) & shift) * acc_magnitude + vel_magnitude;
-    if(space & (vel_magnitude > acc_magnitude + 1)) vel_magnitude -= acc_magnitude;
+    if(space) vel_magnitude = MIN_VELOCITY;
 }

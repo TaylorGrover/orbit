@@ -14,9 +14,10 @@ private:
     GLuint rings, sectors;
     void createVertices() override;
     void createIndices() override;
+    glm::vec3 color;
 
 public:
-    Sphere(float radius, Shader& shader);
+    Sphere(float radius, glm::vec3& color, Shader& shader);
 };
 
 #endif

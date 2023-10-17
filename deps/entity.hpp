@@ -10,7 +10,7 @@
 class Entity
 {
 protected: 
-    unsigned int VBO, VAO, EBO;
+    GLuint VBO, VAO, EBO;
 
     std::vector<GLuint> indices;
     

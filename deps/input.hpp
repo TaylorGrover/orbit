@@ -11,7 +11,7 @@
 const int KEYS_COUNT = 349;
 
 // Rotation speed multiplier
-const float camera_rot_velocity = .25;
+const float camera_rot_velocity = .5;
 
 /**
  * @class Input

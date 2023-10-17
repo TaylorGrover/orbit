@@ -19,8 +19,7 @@
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint MAXDIST = 1000;
-const GLuint NUM_SPHERES = 5;
+const GLuint NUM_SPHERES = 12;
 const char *WINDOW_TITLE = "Orbit";
 
 // Aspect ratio
@@ -34,7 +33,7 @@ const float FOV = 85;
 
 // Near and far clipping plane distances
 const float NEAR = 0.01f;
-const float FAR = 10000000;
+const float FAR = 110000000000;
 
 // Starting camera position
 glm::vec3 camera_position(0.0, 0.0, -500.0);
@@ -215,19 +214,26 @@ int main()
 
     std::vector<Sphere> spheres;
     std::vector<glm::vec3> locations;
+    std::vector<glm::vec3> colors;
     // Uniform distribution for radii and normal for spatial locations
-    std::uniform_real_distribution<float> radii_dist(50, 150);
-    std::normal_distribution<float> locations_dist(0, 1000);
+    std::uniform_real_distribution<float> radii_dist(8000, 12500);
+    std::normal_distribution<float> locations_dist(0, 50000);
+    std::vector<std::uniform_real_distribution<float>> color_dist;
+    color_dist.push_back(std::uniform_real_distribution<float>(.7, .8));
+    color_dist.push_back(std::uniform_real_distribution<float>(.4, .45));
+    color_dist.push_back(std::uniform_real_distribution<float>(.2, .3));
     GLuint i;
     glm::mat4 local(1.0); // Local transformation;
     glm::mat4 model(1.0); // Model transformation; where is it in the world?
     for(i = 0; i < NUM_SPHERES; i++) {
         float radius = radii_dist(rand_engine);
         locations.push_back(glm::vec3(0.0));
+        colors.push_back(glm::vec3(0.0));
         for(GLuint j = 0; j < 3; j++) {
             locations[i][j] = locations_dist(rand_engine);
+            colors[i][j] = color_dist[j](rand_engine);
         }
-        spheres.push_back(Sphere(radius, shader));
+        spheres.push_back(Sphere(radius, colors[i], shader));
         spheres[i].setPosition(locations[i]);
         spheres[i].generateBuffers();
         // Must bind vertex array before VBO and EBO
@@ -259,7 +265,7 @@ int main()
     while(!glfwWindowShouldClose(window)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.1f, 0.1, 0.1, 1.0f);
+        glClearColor(0.0f, 0.0, 0.0, 1.0f);
 
         stop = (float) glfwGetTime();
         duration = stop - start;
@@ -278,7 +284,7 @@ int main()
         //shader.setTransform("local", local);
         for(Sphere& sphere : spheres) {
             sphere.bindVertexArray();
-            sphere.rotateByDegrees(2, rot_axis);
+            sphere.rotateByDegrees(2 * duration, rot_axis);
 
             shader.setTransform("model", sphere.getModelMatrix());
             shader.setTransform("view", view);

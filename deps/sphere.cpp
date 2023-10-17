@@ -4,7 +4,7 @@
  */
 #include <sphere.hpp>
 
-Sphere::Sphere(float radius, Shader& shader) : Entity(shader)
+Sphere::Sphere(float radius, glm::vec3& color, Shader& shader) : Entity(shader)
 {
     if(radius <= 0) {
         std::cerr << "Must specify positive radius, default to 1" << std::endl;
@@ -15,6 +15,7 @@ Sphere::Sphere(float radius, Shader& shader) : Entity(shader)
     }
     float vol = 4.0 / 4.0 * M_PI * pow(Sphere::radius, 3);
     mass = vol * DENSITY; 
+    Sphere::color = color;
 
     // TODO: Decide if this is fine for most radii
     rings = 100, sectors = 100;
@@ -39,9 +40,9 @@ void Sphere::createVertices()
             vertices.push_back(x * radius);
             vertices.push_back(y * radius);
             vertices.push_back(z * radius);
-            vertices.push_back(0.0);
-            vertices.push_back(13.0 / 255);
-            vertices.push_back(228.0 / 255);
+            vertices.push_back(color[0]);
+            vertices.push_back(color[1]);
+            vertices.push_back(color[2]);
         }
     }
 }
