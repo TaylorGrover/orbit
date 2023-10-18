@@ -10,8 +10,10 @@ out vec2 TexCoord;
 
 uniform mat4 projection;
 uniform mat4 view;
-uniform mat4 model[25];
-uniform vec3 modelColors[25];
+uniform mat4 model[128];
+uniform vec3 modelColors[128];
+
+// Ambient light constant
 
 void main()
 {

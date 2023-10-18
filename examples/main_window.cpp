@@ -19,7 +19,7 @@
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint NUM_SPHERES = 100;
+const GLuint NUM_SPHERES = 128;
 const char *WINDOW_TITLE = "Orbit";
 
 // Aspect ratio
@@ -33,7 +33,7 @@ const float FOV = 85;
 
 // Near and far clipping plane distances
 const float NEAR = 0.01f;
-const float FAR = 1100000;
+const float FAR = 10000000;
 
 // Starting camera position
 glm::vec3 camera_position(0.0, 0.0, -500.0);
@@ -74,7 +74,7 @@ void configureWindowHints()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     // Depth Buffer Allocation
-    glfwWindowHint(GLFW_DEPTH_BITS, 24);
+    glfwWindowHint(GLFW_DEPTH_BITS, 32);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -154,7 +154,7 @@ int main()
     glDepthMask(GL_TRUE);
 
     // Wireframe mode (must be called after gladLoadGLLoader
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Generate vertices for sphere
     /*GLuint rings = 200, sectors = 200;
@@ -225,9 +225,9 @@ int main()
     std::uniform_real_distribution<float> radii_dist(10, 120);
     std::normal_distribution<float> locations_dist(0, 70000);
     std::vector<std::uniform_real_distribution<float>> color_dist;
-    color_dist.push_back(std::uniform_real_distribution<float>(.7, .8));
-    color_dist.push_back(std::uniform_real_distribution<float>(.4, .45));
-    color_dist.push_back(std::uniform_real_distribution<float>(.2, .3));
+    color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
+    color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
+    color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
     GLuint i;
     for(i = 0; i < NUM_SPHERES; i++) {
         for(GLuint j = 0; j < 3; j++) {
@@ -282,12 +282,11 @@ int main()
         sphere.rotateByDegrees(2 * duration, rot_axis);
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
-        shader.setMat4Array("model", models, NUM_SPHERES);
         shader.setVec3s("modelColors", colors, NUM_SPHERES);
+        shader.setMat4Array("model", models, NUM_SPHERES);
         shader.use();
         start = (float) glfwGetTime();
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere.getEBO());
         glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);
 
         //glGetError();
