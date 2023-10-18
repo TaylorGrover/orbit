@@ -120,3 +120,19 @@ int Shader::getUniform(const char *name)
 {
     return glGetUniformLocation(this->ID, name);
 }
+
+void Shader::setVec3s(const std::string& name, const glm::vec3 vec[], int count)
+{
+    if(count > 0) {
+        uint uniformID = glGetUniformLocation(this->ID, name.c_str());
+        glUniform3fv(uniformID, count, glm::value_ptr(vec[0]));
+    }
+}
+
+void Shader::setMat4Array(const std::string& name, const glm::mat4 mat[], int count)
+{
+    if(count > 0) {
+        uint uniformID = glGetUniformLocation(this->ID, name.c_str());
+        glUniformMatrix4fv(uniformID, count, GL_FALSE, glm::value_ptr(mat[0]));
+    }
+}

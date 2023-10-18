@@ -17,7 +17,7 @@ private:
     glm::vec3 color;
 
 public:
-    Sphere(float radius, glm::vec3& color, Shader& shader);
+    Sphere(float radius, const glm::vec3& color, Shader& shader);
 };
 
 #endif

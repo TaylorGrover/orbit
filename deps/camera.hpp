@@ -26,8 +26,8 @@ class Camera {
 
     public:
         Camera(Input& input, glm::vec3 position, glm::mat4 orientation);
-        void updateCameraOrientation();
-        void updatePosition();
+        void updateCameraOrientation(float duration);
+        void updatePosition(float duration);
         glm::mat4 getView();
 };
 #endif

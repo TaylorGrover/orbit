@@ -21,6 +21,7 @@ void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         setKey(key);
         if(key == GLFW_KEY_ESCAPE) {
             glfwSetWindowShouldClose(window, GLFW_TRUE);
+            //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
     }
     else if(action == GLFW_RELEASE) {

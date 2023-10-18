@@ -19,7 +19,7 @@
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint NUM_SPHERES = 12;
+const GLuint NUM_SPHERES = 100;
 const char *WINDOW_TITLE = "Orbit";
 
 // Aspect ratio
@@ -33,7 +33,7 @@ const float FOV = 85;
 
 // Near and far clipping plane distances
 const float NEAR = 0.01f;
-const float FAR = 110000000000;
+const float FAR = 1100000;
 
 // Starting camera position
 glm::vec3 camera_position(0.0, 0.0, -500.0);
@@ -132,7 +132,7 @@ int main()
     // Register events callback
     glfwSetKeyCallback(window, keyCallback);
 
-    // Capture mouse
+    // Capture cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, cursorPositionCallback);
     if(glfwRawMouseMotionSupported()) {
@@ -205,47 +205,43 @@ int main()
     stbi_image_free(data); */
 
     Shader shader = Shader("shaders/shader.vs", "shaders/shader.fs"); 
-    //Sphere sphere(50, shader);
-
+    Sphere sphere(1200, glm::vec3(1.0), shader);
+    sphere.setPosition(glm::vec3(0.0));
+    sphere.generateBuffers();
+    sphere.bindVertexArray();
+    sphere.bindEBO();
+    sphere.bindVBO();
+    sphere.enableAttributes();
+    glBindVertexArray(0);
     //glEnableVertexAttribArray(2);
     //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-    
 
 
-    std::vector<Sphere> spheres;
-    std::vector<glm::vec3> locations;
-    std::vector<glm::vec3> colors;
+    glm::mat4 models[NUM_SPHERES];
+    glm::vec3 locations[NUM_SPHERES];
+    std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
+    glm::vec3 colors[NUM_SPHERES];
     // Uniform distribution for radii and normal for spatial locations
-    std::uniform_real_distribution<float> radii_dist(8000, 12500);
-    std::normal_distribution<float> locations_dist(0, 50000);
+    std::uniform_real_distribution<float> radii_dist(10, 120);
+    std::normal_distribution<float> locations_dist(0, 70000);
     std::vector<std::uniform_real_distribution<float>> color_dist;
     color_dist.push_back(std::uniform_real_distribution<float>(.7, .8));
     color_dist.push_back(std::uniform_real_distribution<float>(.4, .45));
     color_dist.push_back(std::uniform_real_distribution<float>(.2, .3));
     GLuint i;
-    glm::mat4 local(1.0); // Local transformation;
-    glm::mat4 model(1.0); // Model transformation; where is it in the world?
     for(i = 0; i < NUM_SPHERES; i++) {
-        float radius = radii_dist(rand_engine);
-        locations.push_back(glm::vec3(0.0));
-        colors.push_back(glm::vec3(0.0));
         for(GLuint j = 0; j < 3; j++) {
             locations[i][j] = locations_dist(rand_engine);
             colors[i][j] = color_dist[j](rand_engine);
         }
-        spheres.push_back(Sphere(radius, colors[i], shader));
-        spheres[i].setPosition(locations[i]);
-        spheres[i].generateBuffers();
-        // Must bind vertex array before VBO and EBO
-        spheres[i].bindVertexArray();
-        spheres[i].bindVBO();
-        spheres[i].bindEBO();
-        spheres[i].enableAttributes();
-        glBindVertexArray(0);
+        models[i] = glm::translate(glm::mat4(1.0), locations[i]);
     }
-    
+
+    shader.setVec3s("modelColors", colors, NUM_SPHERES);
+    shader.setMat4Array("model", models, NUM_SPHERES);
+
     // Camera
-    glm::mat4 view(1.0);  // The vieeeeew (camera)
+    glm::mat4 view(1.0); // The view (camera)
 
     glm::mat4 projection(1.0); // Orthographic or perspective projection
     projection = glm::perspective(glm::radians(FOV), (float) SCR_WIDTH / (float) SCR_HEIGHT, NEAR, FAR);
@@ -272,8 +268,8 @@ int main()
 
         // Rotate the camera view to the current position then perform any 
         //   updates on the rotation matrix
-        camera.updateCameraOrientation();
-        camera.updatePosition();
+        camera.updateCameraOrientation(duration);
+        camera.updatePosition(duration);
         view = camera.getView();
         
         keyCursorInput.resetDiff();
@@ -282,24 +278,25 @@ int main()
         
         // Place in a loop for each object 
         //shader.setTransform("local", local);
-        for(Sphere& sphere : spheres) {
-            sphere.bindVertexArray();
-            sphere.rotateByDegrees(2 * duration, rot_axis);
-
-            shader.setTransform("model", sphere.getModelMatrix());
-            shader.setTransform("view", view);
-            shader.setTransform("projection", projection);
-
-            shader.use();
-            sphere.drawElements();
-            glBindVertexArray(0);
-        }
+        sphere.bindVertexArray();
+        sphere.rotateByDegrees(2 * duration, rot_axis);
+        shader.setTransform("projection", projection);
+        shader.setTransform("view", view);
+        shader.setMat4Array("model", models, NUM_SPHERES);
+        shader.setVec3s("modelColors", colors, NUM_SPHERES);
+        shader.use();
         start = (float) glfwGetTime();
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere.getEBO());
+        glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);
+
+        //glGetError();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    sphere.deleteBuffers();
     glfwTerminate();
     return 0;
 }

@@ -10,13 +10,14 @@ out vec2 TexCoord;
 
 uniform mat4 projection;
 uniform mat4 view;
-uniform mat4 model[100];
+uniform mat4 model[25];
+uniform vec3 modelColors[25];
 
 void main()
 {
     mat4 instanceModel = model[gl_InstanceID];
     gl_Position = projection * view * instanceModel * vec4(aPos, 1.0);
-    ourColor = aColor;
+    ourColor = aColor * modelColors[gl_InstanceID];
     ourPos = aPos;
     TexCoord = aTexCoord;
 }

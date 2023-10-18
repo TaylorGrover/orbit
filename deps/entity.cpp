@@ -21,16 +21,25 @@ void Entity::generateBuffers()
 
 void Entity::enableAttributes()
 {
+    const GLuint stride = 9;
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) 0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) (3 * sizeof(float)));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, stride * sizeof(float), (void *) (6 * sizeof(float)));
 }
 
 void Entity::useShader()
 {
     shader.use();
+}
+
+void Entity::scaleModel(const float scale)
+{
+    model = glm::scale(model, glm::vec3(scale));
 }
 
 void Entity::setPosition(const glm::vec3& pos)
@@ -73,6 +82,11 @@ GLuint Entity::getVAO()
     return VAO;
 }
 
+void Entity::deleteBuffers()
+{
+    glDeleteBuffers(1, &VBO);
+}
+
 void Entity::bindVertexArray()
 {
     glBindVertexArray(VAO);
@@ -98,4 +112,9 @@ void Entity::drawElements()
 glm::mat4 Entity::getModelMatrix()
 {
     return model;
+}
+
+GLuint Entity::getIndicesSize() 
+{ 
+    return indices.size(); 
 }

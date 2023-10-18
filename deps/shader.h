@@ -32,6 +32,8 @@ class Shader
         void setInt(const std::string &name, int value) const;
         void setFloat(const std::string &name, float value) const;
         void setTransform(const std::string &name, const glm::mat4& trans);
+        void setVec3s(const std::string& name, const glm::vec3 vec[], int count);
+        void setMat4Array(const std::string& name, const glm::mat4 mat[], int count);
 
         // The integer ID of the uniform with the given name
         int getUniform(const char *name);

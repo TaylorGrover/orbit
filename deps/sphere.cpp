@@ -4,7 +4,7 @@
  */
 #include <sphere.hpp>
 
-Sphere::Sphere(float radius, glm::vec3& color, Shader& shader) : Entity(shader)
+Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(shader)
 {
     if(radius <= 0) {
         std::cerr << "Must specify positive radius, default to 1" << std::endl;
@@ -43,6 +43,10 @@ void Sphere::createVertices()
             vertices.push_back(color[0]);
             vertices.push_back(color[1]);
             vertices.push_back(color[2]);
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+            //std::cout << pow(x, 2) + pow(y, 2) + pow(z, 2) << std::endl;
         }
     }
 }

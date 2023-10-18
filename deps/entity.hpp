@@ -10,8 +10,7 @@
 class Entity
 {
 protected: 
-    GLuint VBO, VAO, EBO;
-
+    GLuint VAO, VBO, EBO;
     std::vector<GLuint> indices;
     
     /// @brief Vertices, colors, normals
@@ -37,7 +36,9 @@ public:
     void enableAttributes();
 
     void useShader();
+
     void setPosition(const glm::vec3& pos);
+    void scaleModel(const float scale);
     void setProjection(const glm::mat4& projection);
     void setView(const glm::mat4& view);
     void updateLocalAndModel();
@@ -45,6 +46,7 @@ public:
     std::vector<GLuint>& getIndices();
     glm::mat4 getModelMatrix();
 
+    GLuint getIndicesSize();
     GLuint getEBO();
     GLuint getVAO();
     void bindEBO();
@@ -52,6 +54,7 @@ public:
     void bindVertexArray();
     void drawElements();
     void generateBuffers();
+    void deleteBuffers();
     void initObjects();
 };
 
