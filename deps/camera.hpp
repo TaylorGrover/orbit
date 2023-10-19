@@ -20,12 +20,13 @@ class Camera {
 
         float vel_magnitude;
         float acc_magnitude;
+        float farClip;
 
         // Keyboard and cursor input management
         Input& input;
 
     public:
-        Camera(Input& input, glm::vec3 position, glm::mat4 orientation);
+        Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const float farClip);
         void updateCameraOrientation(float duration);
         void updatePosition(float duration);
         glm::mat4 getView();

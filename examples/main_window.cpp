@@ -17,13 +17,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint NUM_SPHERES = 1 << 8;
+const GLuint NUM_SPHERES = 1 << 6;
 const char *WINDOW_TITLE = "Orbit";
 const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
+
+// Fraction of entities that are lights
+const float LIGHT_FRACTION = .5;
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
 const float G = 6.64728e9;
@@ -45,7 +47,7 @@ const float FOV = 85;
 
 // Near and far clipping plane distances
 const float NEAR = 0.01f;
-const float FAR = 10000000;
+const float FAR = 550000;
 
 // Starting camera position
 glm::vec3 camera_position(0.0, 0.0, -500.0);
@@ -68,7 +70,7 @@ Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
 
 
 // Camera rotation globals
-Camera camera(keyCursorInput, camera_position, glm::mat4(1.0));
+Camera camera(keyCursorInput, camera_position, glm::mat4(1.0), FAR);
     
 // Normal distribution
 const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -244,10 +246,15 @@ int main()
     glm::vec3 locations[NUM_SPHERES];
     std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
     glm::vec3 colors[NUM_SPHERES];
-    // Uniform distribution for radii and normal for spatial locations
+    // Essentially a boolean array
+    GLint lights[NUM_SPHERES];
+
+    // Uniform distribution for radii, colors, and normal for locations
     std::uniform_real_distribution<float> radii_dist(10, 1200);
     std::normal_distribution<float> locations_dist(0, 70000);
+    std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist;
+
     color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
     color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
     color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
@@ -259,10 +266,15 @@ int main()
         }
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
         models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
+        if(light_dist(rand_engine) <= LIGHT_FRACTION) {
+            lights[i] = true;
+            std::cout << "Does this ever happen?\n";
+        }
     }
 
     shader.setVec3s("modelColors", colors, NUM_SPHERES);
     shader.setMat4Array("model", models, NUM_SPHERES);
+    shader.setBoolArray("isLightSource", lights, NUM_SPHERES);
 
     // Camera
     glm::mat4 view(1.0); // The view (camera)
@@ -308,6 +320,7 @@ int main()
         shader.setTransform("view", view);
         shader.setVec3s("modelColors", colors, NUM_SPHERES);
         shader.setMat4Array("model", models, NUM_SPHERES);
+        shader.setBoolArray("isLightSource", lights, NUM_SPHERES);
         shader.use();
 
         glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);

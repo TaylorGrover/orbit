@@ -48,8 +48,6 @@ void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath, in
 
         // Replace __NUM_ENTITIES__ with the given value
         setEntityCount(vertexCode, fragmentCode, entityCount);       
-        std::cout << vertexCode << std::endl;
-        std::cout << fragmentCode << std::endl;
 
     } catch(std::ifstream::failure& err) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
@@ -150,5 +148,13 @@ void Shader::setMat4Array(const std::string& name, const glm::mat4 mat[], int co
     if(count > 0) {
         uint uniformID = glGetUniformLocation(this->ID, name.c_str());
         glUniformMatrix4fv(uniformID, count, GL_FALSE, glm::value_ptr(mat[0]));
+    }
+}
+
+void Shader::setBoolArray(const std::string& name, const GLint array[], int count)
+{
+    if(count > 0) {
+        uint uniformID = glGetUniformLocation(this->ID, name.c_str());
+        glUniform1iv(uniformID, count, array);
     }
 }

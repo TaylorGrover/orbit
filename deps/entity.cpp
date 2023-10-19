@@ -118,3 +118,13 @@ GLuint Entity::getIndicesSize()
 { 
     return indices.size(); 
 }
+
+void Entity::setLight(bool isLight) 
+{
+    Entity::isLight = isLight;
+}
+
+bool Entity::getLight()
+{
+    return isLight;
+}

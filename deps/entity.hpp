@@ -21,6 +21,9 @@ protected:
     // Spatial orientation and position
     glm::mat4 model;
 
+    // Is the model a light source?
+    bool isLight;
+
 public:
     Entity(Shader& shader);
     
@@ -56,6 +59,8 @@ public:
     void generateBuffers();
     void deleteBuffers();
     void initObjects();
+    void setLight(bool isLight);
+    bool getLight();
 };
 
 
@@ -72,8 +77,7 @@ private:
 public:
     const float DENSITY = .8f;
     Sphere(float radius, const glm::vec3& color, Shader& shader);
+
 };
-
-
 
 #endif
