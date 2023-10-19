@@ -1,22 +1,29 @@
 #include "shader.h"
 
-void setEntityCount(std::string& vSource, std::string& fSource, int count)
+/**
+ * Swap the placeholder strings in the vertex and fragment sources 
+ *   for the entity and light source counts
+*/
+void Shader::swapPlaceholders(std::string& vSource, std::string& fSource)
 {
-    std::string replaceStr = "__NUM_ENTITIES__";
-    size_t startIndex = vSource.find(replaceStr, 0);
-    vSource.replace(startIndex, replaceStr.size(), std::to_string(count));
-    startIndex = fSource.find(replaceStr, 0);
-    fSource.replace(startIndex, replaceStr.size(), std::to_string(count));
+    std::string replaceNumEntities = "__NUM_ENTITIES__";
+    std::string replaceNumLights = "__NUM_LIGHT_SOURCES__";
+    size_t startIndex = vSource.find(replaceNumEntities, 0);
+    vSource.replace(startIndex, replaceNumEntities.size(), std::to_string(entityCount));
+    startIndex = fSource.find(replaceNumEntities, 0);
+    fSource.replace(startIndex, replaceNumEntities.size(), std::to_string(entityCount));
+    startIndex = fSource.find(replaceNumLights, 0);
+    fSource.replace(startIndex, replaceNumLights.size(), std::to_string(lightCount));
 }
 
 Shader::Shader() {}
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, int entityCount)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, int entityCount, int lightCount) : entityCount(entityCount), lightCount(lightCount)
 {
-    setShaderPaths(vertexPath, fragmentPath, entityCount);
+    setShaderPaths(vertexPath, fragmentPath);
 }
 
-void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath, int entityCount)
+void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -47,7 +54,7 @@ void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath, in
         fragmentCode = fShaderStream.str();
 
         // Replace __NUM_ENTITIES__ with the given value
-        setEntityCount(vertexCode, fragmentCode, entityCount);       
+        swapPlaceholders(vertexCode, fragmentCode);
 
     } catch(std::ifstream::failure& err) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
@@ -135,7 +142,7 @@ int Shader::getUniform(const char *name)
     return glGetUniformLocation(this->ID, name);
 }
 
-void Shader::setVec3s(const std::string& name, const glm::vec3 vec[], int count)
+void Shader::setVec3Array(const std::string& name, const glm::vec3 vec[], int count)
 {
     if(count > 0) {
         uint uniformID = glGetUniformLocation(this->ID, name.c_str());
@@ -151,7 +158,7 @@ void Shader::setMat4Array(const std::string& name, const glm::mat4 mat[], int co
     }
 }
 
-void Shader::setBoolArray(const std::string& name, const GLint array[], int count)
+void Shader::setIntArray(const std::string& name, const GLint array[], int count)
 {
     if(count > 0) {
         uint uniformID = glGetUniformLocation(this->ID, name.c_str());

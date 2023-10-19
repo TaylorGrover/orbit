@@ -56,18 +56,26 @@ void Camera::updatePosition(float duration)
 {
     // This avoids large sequence of if-statements in while loop
     // Not sure if any substantial trade-offs
-    bool w, s, a, d, shift, space;
+    bool w, s, a, d, f, c, q, e, shift, space;
     w = input.isKeyPressed(GLFW_KEY_W);
     s = input.isKeyPressed(GLFW_KEY_S);
     a = input.isKeyPressed(GLFW_KEY_A);
     d = input.isKeyPressed(GLFW_KEY_D);
+    f = input.isKeyPressed(GLFW_KEY_F);
+    c = input.isKeyPressed(GLFW_KEY_C);
+    q = input.isKeyPressed(GLFW_KEY_Q);
+    e = input.isKeyPressed(GLFW_KEY_E);
     shift = input.isKeyPressed(GLFW_KEY_LEFT_SHIFT);
     space = input.isKeyPressed(GLFW_KEY_SPACE);
     position += (float) w * (vel_magnitude * camera_back * duration);
     position -= (float) s * (vel_magnitude * camera_back * duration);
     position += (float) a * (vel_magnitude * camera_right * duration);
     position -= (float) d * (vel_magnitude * camera_right * duration);
-    vel_magnitude = ((w | s | a | d) & shift) * acc_magnitude * duration + vel_magnitude;
+    position += (float) f * (vel_magnitude * -camera_up * duration);
+    position += (float) c * (vel_magnitude * camera_up * duration);
+    vel_magnitude = ((w || s || a || d || f || c) && shift) * acc_magnitude * duration + vel_magnitude;
+    orientation = glm::rotate(orientation, -glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * q), camera_back);
+    orientation = glm::rotate(orientation, glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * e), camera_back);
     if(space) vel_magnitude = MIN_VELOCITY;
     /*// This might be expensive
     if(glm::length(position) > farClip) {

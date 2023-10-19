@@ -19,13 +19,13 @@
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint NUM_SPHERES = 1 << 6;
+const GLuint NUM_SPHERES = 1 << 8;
 const char *WINDOW_TITLE = "Orbit";
 const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
 
 // Fraction of entities that are lights
-const float LIGHT_FRACTION = .5;
+const float LIGHT_FRACTION = .1;
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
 const float G = 6.64728e9;
@@ -122,15 +122,7 @@ void updateModels(glm::mat4 models[], glm::vec3 locations[], int count, float du
 {
     // Rescale all the models
     for(int i = 0; i < count; i++) {
-        // Acceleration vector for 
-        glm::vec3 acc(0.0);
-        glm::vec3 diff(0.0);
-        //models[i] = glm::rotate(models[i], glm::radians(2 * duration), glm::vec3(1, 0, 0));
-        for(int j = 0; j < count; j++) {
-            if(j == i) continue;
-            diff = locations[j] - locations[i];
-        }
-        //models[i] = glm::scale(models[i], glm::vec3(1 + .55 * duration));
+        models[i] = glm::translate(models[i], .1f * duration * glm::normalize(locations[i]));
     }
 }
 
@@ -228,16 +220,6 @@ int main()
     }
     stbi_image_free(data); */
 
-    Shader shader = Shader(VERTEX_PATH, FRAG_PATH, NUM_SPHERES); 
-    shader.setInt("N", NUM_SPHERES);
-    Sphere sphere(1, glm::vec3(1.0), shader);
-    sphere.setPosition(glm::vec3(0.0));
-    sphere.generateBuffers();
-    sphere.bindVertexArray();
-    sphere.bindEBO();
-    sphere.bindVBO();
-    sphere.enableAttributes();
-    glBindVertexArray(0);
     //glEnableVertexAttribArray(2);
     //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
 
@@ -247,10 +229,11 @@ int main()
     std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
     glm::vec3 colors[NUM_SPHERES];
     // Essentially a boolean array
-    GLint lights[NUM_SPHERES];
+    GLint isLightSource[NUM_SPHERES];
+    std::vector<GLint> lightSourceIndices;
 
     // Uniform distribution for radii, colors, and normal for locations
-    std::uniform_real_distribution<float> radii_dist(10, 1200);
+    std::uniform_real_distribution<float> radii_dist(10, 2400);
     std::normal_distribution<float> locations_dist(0, 70000);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist;
@@ -267,14 +250,26 @@ int main()
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
         models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
         if(light_dist(rand_engine) <= LIGHT_FRACTION) {
-            lights[i] = true;
-            std::cout << "Does this ever happen?\n";
+            isLightSource[i] = true;
+            lightSourceIndices.push_back(i);
         }
     }
+    std::cout << lightSourceIndices.size() << std::endl;
 
-    shader.setVec3s("modelColors", colors, NUM_SPHERES);
+    Shader shader = Shader(VERTEX_PATH, FRAG_PATH, NUM_SPHERES, lightSourceIndices.size()); 
+    Sphere sphere(1, glm::vec3(1.0), shader);
+    sphere.setPosition(glm::vec3(0.0));
+    sphere.generateBuffers();
+    sphere.bindVertexArray();
+    sphere.bindEBO();
+    sphere.bindVBO();
+    sphere.enableAttributes();
+    glBindVertexArray(0);
+
+    shader.setVec3Array("modelColors", colors, NUM_SPHERES);
     shader.setMat4Array("model", models, NUM_SPHERES);
-    shader.setBoolArray("isLightSource", lights, NUM_SPHERES);
+    shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);
+    shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
 
     // Camera
     glm::mat4 view(1.0); // The view (camera)
@@ -318,9 +313,10 @@ int main()
         sphere.rotateByDegrees(2 * duration, rot_axis);
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
-        shader.setVec3s("modelColors", colors, NUM_SPHERES);
+        shader.setVec3Array("modelColors", colors, NUM_SPHERES);
         shader.setMat4Array("model", models, NUM_SPHERES);
-        shader.setBoolArray("isLightSource", lights, NUM_SPHERES);
+        shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);
+        shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
         shader.use();
 
         glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);

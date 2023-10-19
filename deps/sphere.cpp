@@ -18,7 +18,7 @@ Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(sh
     Sphere::color = color;
 
     // TODO: Decide if this is fine for most radii
-    rings = 100, sectors = 100;
+    rings = 50, sectors = 50;
     createVertices();
     createIndices();
 }
