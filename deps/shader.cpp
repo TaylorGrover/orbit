@@ -1,13 +1,22 @@
 #include "shader.h"
 
-Shader::Shader() {}
-
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+void setEntityCount(std::string& vSource, std::string& fSource, int count)
 {
-    setShaderPaths(vertexPath, fragmentPath);
+    std::string replaceStr = "__NUM_ENTITIES__";
+    size_t startIndex = vSource.find(replaceStr, 0);
+    vSource.replace(startIndex, replaceStr.size(), std::to_string(count));
+    startIndex = fSource.find(replaceStr, 0);
+    fSource.replace(startIndex, replaceStr.size(), std::to_string(count));
 }
 
-void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
+Shader::Shader() {}
+
+Shader::Shader(const char* vertexPath, const char* fragmentPath, int entityCount)
+{
+    setShaderPaths(vertexPath, fragmentPath, entityCount);
+}
+
+void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath, int entityCount)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -34,7 +43,14 @@ void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
         
         // convert stream into string
         vertexCode = vShaderStream.str();
+
         fragmentCode = fShaderStream.str();
+
+        // Replace __NUM_ENTITIES__ with the given value
+        setEntityCount(vertexCode, fragmentCode, entityCount);       
+        std::cout << vertexCode << std::endl;
+        std::cout << fragmentCode << std::endl;
+
     } catch(std::ifstream::failure& err) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
     }

@@ -17,7 +17,7 @@ class Shader
         unsigned int ID;
 
         // constructor reads and builds the shader
-        Shader(const char *vertexPath, const char* fragmentPath);
+        Shader(const char *vertexPath, const char* fragmentPath, int entityCount);
         
         // No arg constructor. Need to pass shader paths at some point
         Shader();
@@ -37,7 +37,7 @@ class Shader
 
         // The integer ID of the uniform with the given name
         int getUniform(const char *name);
-        void setShaderPaths(const char* vertexPath, const char* fragmentPath);
+        void setShaderPaths(const char* vertexPath, const char* fragmentPath, int entityCount);
 
 };
 

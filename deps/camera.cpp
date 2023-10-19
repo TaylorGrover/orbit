@@ -7,7 +7,7 @@
 
 const float MAX_VELOCITY = 13;
 const float MIN_VELOCITY = 5;
-const float CAMERA_ROTATION_VELOCITY = 20;
+const float CAMERA_ROTATION_VELOCITY = 10;
 
 Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation) : input(input)
 {

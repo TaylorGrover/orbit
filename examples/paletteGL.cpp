@@ -12,6 +12,8 @@
 const GLuint SCR_WIDTH = 800;
 const GLuint SCR_HEIGHT = 600;
 const char *WINDOW_TITLE = "Orbit";
+const char *VERTEX_PATH = "shaders/palette.vs";
+const char *FRAG_PATH = "shaders/palette.fs";
 
 // Global shader and rgb values
 GLuint r = 0, g = 0, b = 0;
@@ -152,7 +154,7 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    Shader shader("shaders/shader.vs", "shaders/palette.fs");
+    Shader shader(VERTEX_PATH, FRAG_PATH, 1);
     shader.use();
     
     // ############### //

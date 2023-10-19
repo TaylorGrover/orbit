@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <camera.hpp>
+#include <entity.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,16 +12,27 @@
 #include <input.hpp>
 #include <qtwindow.h>
 #include <shader.h>
-#include <sphere.hpp>
 #include <random>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
-const GLuint NUM_SPHERES = 128;
+const GLuint NUM_SPHERES = 1 << 8;
 const char *WINDOW_TITLE = "Orbit";
+const char *VERTEX_PATH = "shaders/shader.vs";
+const char *FRAG_PATH = "shaders/shader.fs";
+
+// Gravitational constant (scaled by 10^18) N * m^2 / kg^2
+const float G = 6.64728e9;
+
+// Distance from earth to Sun (apoapsis)
+const float ES_DIST = 147e6;
+
+
+// Mass of Earth (scaled by 1/10^9)
 
 // Aspect ratio
 const float ASPECT_RATIO = static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT);
@@ -74,21 +86,11 @@ void configureWindowHints()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     // Depth Buffer Allocation
-    glfwWindowHint(GLFW_DEPTH_BITS, 32);
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-}
-
-/**
- * Rotate the local rotation matrix by some small random angle about some 
- *   random vector.
-*/
-void adjust_rot_axis(glm::vec3& rot_axis)
-{
-    for(int i = 0; i < 3; i++) { rot_axis[i] += norm(rand_engine); }
-    rot_axis = glm::normalize(rot_axis);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -108,6 +110,26 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     // Specify location of the lower left corner of the first (x, y), then
     //   the dimensions
     glViewport(0, 0, width, height);
+}
+
+/**
+ * Naive brute force gravity calculations and collision detection
+ * TODO: Find faster solution later
+*/
+void updateModels(glm::mat4 models[], glm::vec3 locations[], int count, float duration)
+{
+    // Rescale all the models
+    for(int i = 0; i < count; i++) {
+        // Acceleration vector for 
+        glm::vec3 acc(0.0);
+        glm::vec3 diff(0.0);
+        //models[i] = glm::rotate(models[i], glm::radians(2 * duration), glm::vec3(1, 0, 0));
+        for(int j = 0; j < count; j++) {
+            if(j == i) continue;
+            diff = locations[j] - locations[i];
+        }
+        //models[i] = glm::scale(models[i], glm::vec3(1 + .55 * duration));
+    }
 }
 
 int main()
@@ -204,8 +226,9 @@ int main()
     }
     stbi_image_free(data); */
 
-    Shader shader = Shader("shaders/shader.vs", "shaders/shader.fs"); 
-    Sphere sphere(1200, glm::vec3(1.0), shader);
+    Shader shader = Shader(VERTEX_PATH, FRAG_PATH, NUM_SPHERES); 
+    shader.setInt("N", NUM_SPHERES);
+    Sphere sphere(1, glm::vec3(1.0), shader);
     sphere.setPosition(glm::vec3(0.0));
     sphere.generateBuffers();
     sphere.bindVertexArray();
@@ -222,7 +245,7 @@ int main()
     std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
     glm::vec3 colors[NUM_SPHERES];
     // Uniform distribution for radii and normal for spatial locations
-    std::uniform_real_distribution<float> radii_dist(10, 120);
+    std::uniform_real_distribution<float> radii_dist(10, 1200);
     std::normal_distribution<float> locations_dist(0, 70000);
     std::vector<std::uniform_real_distribution<float>> color_dist;
     color_dist.push_back(std::uniform_real_distribution<float>(.7, 1.));
@@ -235,6 +258,7 @@ int main()
             colors[i][j] = color_dist[j](rand_engine);
         }
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
+        models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
     }
 
     shader.setVec3s("modelColors", colors, NUM_SPHERES);
@@ -250,21 +274,24 @@ int main()
 
     
     // Maintain rotation speed
-    float start = (float)glfwGetTime();
-    float stop, duration;
+    float prev = (float) glfwGetTime();
+    float next, duration;
 
     // Reset the 
 
     // ############### //
     // ## Main Loop ## //
+    float accumulator;
 
     while(!glfwWindowShouldClose(window)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0, 0.0, 1.0f);
 
-        stop = (float) glfwGetTime();
-        duration = stop - start;
+        next = (float) glfwGetTime();
+        duration = next - prev;
+        prev = next;
+        accumulator += duration;
 
         // Rotate the camera view to the current position then perform any 
         //   updates on the rotation matrix
@@ -274,10 +301,7 @@ int main()
         
         keyCursorInput.resetDiff();
 
-        //model = glm::rotate(model, glm::radians(ROT_SPEED * duration), rot_axis);
-        
-        // Place in a loop for each object 
-        //shader.setTransform("local", local);
+        //updateModels(models, locations, NUM_SPHERES, duration);
         sphere.bindVertexArray();
         sphere.rotateByDegrees(2 * duration, rot_axis);
         shader.setTransform("projection", projection);
@@ -285,11 +309,10 @@ int main()
         shader.setVec3s("modelColors", colors, NUM_SPHERES);
         shader.setMat4Array("model", models, NUM_SPHERES);
         shader.use();
-        start = (float) glfwGetTime();
 
         glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);
 
-        //glGetError();
+        //std::cout << glGetError() << std::endl;
 
         glfwSwapBuffers(window);
         glfwPollEvents();

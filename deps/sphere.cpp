@@ -2,7 +2,7 @@
  * Here we create spherical objects that have masses proportional to their 
  * volumes
  */
-#include <sphere.hpp>
+#include <entity.hpp>
 
 Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(shader)
 {

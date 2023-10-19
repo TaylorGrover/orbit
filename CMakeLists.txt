@@ -133,8 +133,7 @@ set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
           "${Orbit_SOURCE_DIR}/deps/input.cpp")
 set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
            "${Orbit_SOURCE_DIR}/deps/shader.cpp")
-set(SPHERE "${Orbit_SOURCE_DIR}/deps/sphere.hpp"
-           "${Orbit_SOURCE_DIR}/deps/sphere.cpp")
+set(SPHERE "${Orbit_SOURCE_DIR}/deps/sphere.cpp")
 set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
 set(TINYCTHREAD "${Orbit_SOURCE_DIR}/deps/tinycthread.h"
                 "${Orbit_SOURCE_DIR}/deps/tinycthread.c")

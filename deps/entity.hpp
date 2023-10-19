@@ -58,4 +58,22 @@ public:
     void initObjects();
 };
 
+
+class Sphere: public Entity
+{
+private:
+    float radius;
+    float mass;
+    GLuint rings, sectors;
+    void createVertices() override;
+    void createIndices() override;
+    glm::vec3 color;
+
+public:
+    const float DENSITY = .8f;
+    Sphere(float radius, const glm::vec3& color, Shader& shader);
+};
+
+
+
 #endif
