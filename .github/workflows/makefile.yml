@@ -16,12 +16,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-         sudo apt-get install doxygen
-         sudo apt-get install libxrandr-dev
-         sudo apt-get install libxinerama-dev
-         sudo apt-get install libxcursor-dev
-         sudo apt-get install libxi-dev
-         sudo apt-get install libxext-dev
+         sudo ./install
 
     - name: Build
       run: cmake . && make

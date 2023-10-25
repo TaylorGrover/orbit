@@ -1,0 +1,7 @@
+#! /bin/bash
+
+apt-get install doxygen
+apt-get install libxrandr-dev
+apt-get install libxcursor-dev
+apt-get install libxi-dev
+apt-get install libxext-dev
