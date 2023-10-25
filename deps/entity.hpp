@@ -4,6 +4,7 @@
 #include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 #include <shader.h>
 #include <vector>
 
@@ -78,6 +79,11 @@ public:
     const float DENSITY = .8f;
     Sphere(float radius, const glm::vec3& color, Shader& shader);
 
+};
+
+class EntityManager
+{
+    std::vector<std::shared_ptr<Entity>> entities;
 };
 
 #endif

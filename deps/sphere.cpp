@@ -18,7 +18,7 @@ Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(sh
     Sphere::color = color;
 
     // TODO: Decide if this is fine for most radii
-    rings = 50, sectors = 50;
+    rings = 80, sectors = 80;
     createVertices();
     createIndices();
 }
@@ -40,13 +40,13 @@ void Sphere::createVertices()
             vertices.push_back(x * radius);
             vertices.push_back(y * radius);
             vertices.push_back(z * radius);
-            vertices.push_back(color[0]);
-            vertices.push_back(color[1]);
-            vertices.push_back(color[2]);
+            vertices.push_back(.4);
+            vertices.push_back(.8);
+            vertices.push_back(.9);
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
-            //std::cout << pow(x, 2) + pow(y, 2) + pow(z, 2) << std::endl;
+            //std::cout << x << " " << y << " " << z << std::endl;
         }
     }
 }

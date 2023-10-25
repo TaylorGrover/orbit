@@ -29,7 +29,7 @@ void Entity::enableAttributes()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) (3 * sizeof(float)));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, stride * sizeof(float), (void *) (6 * sizeof(float)));
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_INT, GL_FALSE, stride * sizeof(float), (void *) (6 * sizeof(float)));
 }
 
 void Entity::useShader()

@@ -6,7 +6,7 @@
 #include <iostream>
 
 const float MAX_VELOCITY = 13;
-const float MIN_VELOCITY = 5;
+const float MIN_VELOCITY = .1;
 const float CAMERA_ROTATION_VELOCITY = 15;
 
 Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const float farClip) : input(input)
@@ -23,7 +23,7 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const fl
 
     // Constants to govern camera speed
     Camera::vel_magnitude = MIN_VELOCITY;
-    Camera::acc_magnitude = 20000.0;
+    Camera::acc_magnitude = 50.0;
     Camera::farClip = farClip;
 }
 

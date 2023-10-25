@@ -13,12 +13,15 @@ out flat int instanceID;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model[NUM_ENTITIES];
+uniform mat3 normalMatrices[NUM_ENTITIES];
 
 void main()
 {
     mat4 instanceModel = model[gl_InstanceID];
-    gl_Position = projection * view * instanceModel * vec4(aPos, 1.0);
+    vec4 location = instanceModel * vec4(aPos, 1.0);
+    gl_Position = projection * view * location;
+    //gl_Position = projection * view * instanceModel * vec4(aNormal * 1000, 1.0);
     ourPos = vec3(instanceModel * vec4(aPos, 1.0));
-    ourNorm = aNormal;
+    ourNorm = normalize(aNormal);
     instanceID = gl_InstanceID;
 }

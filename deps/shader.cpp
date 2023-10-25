@@ -158,6 +158,14 @@ void Shader::setMat4Array(const std::string& name, const glm::mat4 mat[], int co
     }
 }
 
+void Shader::setMat3Array(const std::string& name, const glm::mat3 mat[], int count)
+{
+    if(count > 0) {
+        uint uniformID = glGetUniformLocation(this->ID, name.c_str());
+        glUniformMatrix3fv(uniformID, count, GL_FALSE, glm::value_ptr(mat[0]));
+    }
+}
+
 void Shader::setIntArray(const std::string& name, const GLint array[], int count)
 {
     if(count > 0) {
