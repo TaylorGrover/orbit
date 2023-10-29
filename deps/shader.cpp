@@ -1,26 +1,69 @@
 #include "shader.h"
 
 /**
+ * Utility function to replace each instance of a given placeholder string
+ *   with a specified replacement string
+*/
+std::string replace(const std::string& inputStr, const std::string& target, const std::string& replacement)
+{
+    if(target.size() == 0) return inputStr;
+    std::string copy = inputStr.substr(0, inputStr.length());
+    size_t index = 0;
+    while((index = copy.find(target, index)) != std::string::npos) {
+        copy.replace(index, target.size(), replacement);
+    }
+    return copy;
+}
+
+/**
  * Swap the placeholder strings in the vertex and fragment sources 
  *   for the entity and light source counts
 */
-void Shader::swapPlaceholders(std::string& vSource, std::string& fSource)
+void Shader::swapPlaceholders()
 {
-    std::string replaceNumEntities = "__NUM_ENTITIES__";
-    std::string replaceNumLights = "__NUM_LIGHT_SOURCES__";
-    size_t startIndex = vSource.find(replaceNumEntities, 0);
-    vSource.replace(startIndex, replaceNumEntities.size(), std::to_string(entityCount));
-    startIndex = fSource.find(replaceNumEntities, 0);
-    fSource.replace(startIndex, replaceNumEntities.size(), std::to_string(entityCount));
-    startIndex = fSource.find(replaceNumLights, 0);
-    fSource.replace(startIndex, replaceNumLights.size(), std::to_string(lightCount));
+    for(auto& it : placeholderMap) {
+        vertexSource = replace(vertexSource, it.first, it.second);
+        fragmentSource = replace(fragmentSource, it.first, it.second);
+    }
 }
 
-Shader::Shader() {}
-
-Shader::Shader(const char* vertexPath, const char* fragmentPath, int entityCount, int lightCount) : entityCount(entityCount), lightCount(lightCount)
+Shader::Shader(const char* vertexPath, const char* fragmentPath) 
 {
-    setShaderPaths(vertexPath, fragmentPath);
+    Shader::vertexPath = vertexPath;
+    Shader::fragmentPath = fragmentPath;
+    readShaderSource();
+}
+
+/**
+ * Use the given vertexPath and fragmentPath to read the shader source into the
+ *   source variables
+*/
+void Shader::readShaderSource()
+{
+    std::ifstream vShaderFile, fShaderFile;
+    vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+    fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        // open files
+        vShaderFile.open(vertexPath);
+        fShaderFile.open(fragmentPath);
+
+        std::stringstream vShaderStream, fShaderStream;
+        // read file's buffer contents into streams
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+
+        // close file handlers
+        vShaderFile.close();
+        fShaderFile.close();
+
+        // convert stream into string
+        vertexSource = vShaderStream.str();
+        fragmentSource = fShaderStream.str();
+
+    } catch(std::ifstream::failure& err) {
+        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+    }
 }
 
 void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
@@ -54,7 +97,7 @@ void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
         fragmentCode = fShaderStream.str();
 
         // Replace __NUM_ENTITIES__ with the given value
-        swapPlaceholders(vertexCode, fragmentCode);
+        swapPlaceholders();
 
     } catch(std::ifstream::failure& err) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
@@ -62,7 +105,17 @@ void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
-    // 2. compile shaders
+}
+
+void Shader::compileAndLink()
+{
+    // Initially swap any placeholders provided in the map
+    swapPlaceholders();
+
+    const char *vShaderCode = vertexSource.c_str();
+    const char *fShaderCode = fragmentSource.c_str();
+
+    // compile shaders
     unsigned int vertex, fragment;
     int success;
     char infoLog[512];
@@ -172,4 +225,13 @@ void Shader::setIntArray(const std::string& name, const GLint array[], int count
         uint uniformID = glGetUniformLocation(this->ID, name.c_str());
         glUniform1iv(uniformID, count, array);
     }
+}
+
+/**
+ * This map contains any placeholder strings that should be replaced in the 
+ * shaders prior to compilation
+*/
+void Shader::setPlaceholders(std::map<std::string, std::string>& placeholderMap)
+{
+    Shader::placeholderMap = placeholderMap;
 }

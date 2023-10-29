@@ -154,7 +154,7 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    Shader shader(VERTEX_PATH, FRAG_PATH, 1, 1);
+    Shader shader(VERTEX_PATH, FRAG_PATH);
     shader.use();
     
     // ############### //

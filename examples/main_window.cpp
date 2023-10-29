@@ -3,6 +3,7 @@
 #include <cmath>
 #include <camera.hpp>
 #include <entity.hpp>
+#include <entity_manager.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,18 +12,19 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <input.hpp>
 #include <qtwindow.h>
+#include <map>
 #include <shader.h>
 #include <random>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define DEBUG_ON
+#define DEBUG_OFF
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 3;
+const GLuint NUM_SPHERES = 1 << 4;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -246,6 +248,7 @@ int main()
     //glEnableVertexAttribArray(2);
     //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
 
+    EntityManager<Sphere> sphereManager;
 
     glm::mat4 models[NUM_SPHERES];
     glm::mat3 normals[NUM_SPHERES];
@@ -273,9 +276,9 @@ int main()
     std::normal_distribution<float> locations_dist(0, 50);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
-        .1, .3,
-        .3, .4,
-        .7, .8
+        .1, .1,
+        .3, .3,
+        .7, .7
     );
 
     GLuint i;
@@ -292,7 +295,7 @@ int main()
         }
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
         models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
-        normals[i] = glm::transpose(glm::inverse(glm::mat3(models[i])));
+        normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
         if(isLightSource[i]) {
             lightSourceIndices.push_back(i);
         }
@@ -300,21 +303,22 @@ int main()
     std::cout << lightSourceIndices.size() << std::endl;
 #endif
 
-    Shader shader = Shader(VERTEX_PATH, FRAG_PATH, NUM_SPHERES, lightSourceIndices.size()); 
-    Sphere sphere(1, glm::vec3(1.0), shader);
-    sphere.setPosition(glm::vec3(0.0));
+    Shader shader = Shader(VERTEX_PATH, FRAG_PATH);
+    // Get replacement map for placeholder strings in shader source
+    std::map<std::string, std::string> shaderMacroMap {
+        std::make_pair("__NUM_ENTITIES__", std::to_string(NUM_SPHERES)),
+        std::make_pair("__NUM_LIGHT_SOURCES__", std::to_string(lightSourceIndices.size()))
+    };
+    shader.setPlaceholders(shaderMacroMap);
+    shader.compileAndLink();
+
+    Sphere sphere(1, glm::vec3(1.0));
     sphere.generateBuffers();
     sphere.bindVertexArray();
     sphere.bindEBO();
     sphere.bindVBO();
     sphere.enableAttributes();
     glBindVertexArray(0);
-
-    shader.setVec3Array("modelColors", colors, NUM_SPHERES);
-    shader.setMat4Array("model", models, NUM_SPHERES);
-    shader.setMat3Array("normalMatrices", normals, NUM_SPHERES);
-    shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);
-    shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
 
     // Camera
     glm::mat4 view(1.0); // The view (camera)
@@ -323,9 +327,6 @@ int main()
     projection = glm::perspective(glm::radians(FOV), (float) SCR_WIDTH / (float) SCR_HEIGHT, NEAR, FAR);
     //projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, NEAR, FAR);
 
-    glm::vec3 rot_axis(0.0, 1.0, 0.0);
-
-    
     // Maintain rotation speed
     float prev = (float) glfwGetTime();
     float next, duration;
@@ -337,8 +338,7 @@ int main()
     float accumulator;
 
     while(!glfwWindowShouldClose(window)) {
-        // Rotate the camera view to the current position then perform any 
-        //   updates on the rotation matrix
+        // Adjust camera position and orientation as needed
         camera.updateCameraOrientation(duration);
         camera.updatePosition(duration);
         view = camera.getView();
@@ -352,10 +352,8 @@ int main()
         duration = next - prev;
         prev = next;
         accumulator += duration;
-
         //updateModels(models, NUM_SPHERES, duration);
         sphere.bindVertexArray();
-        sphere.rotateByDegrees(2 * duration, rot_axis);
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
         shader.setVec3Array("modelColors", colors, NUM_SPHERES);
@@ -373,7 +371,6 @@ int main()
         glfwPollEvents();
     }
 
-    sphere.deleteBuffers();
     glfwTerminate();
     return 0;
 }

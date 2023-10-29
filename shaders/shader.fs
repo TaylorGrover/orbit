@@ -9,7 +9,10 @@ in flat int instanceID;
 
 uniform sampler2D ourTexture;
 uniform bool isLightSource[NUM_ENTITIES]; 
+#if NUM_LIGHT_SOURCES > 0
 uniform int lightSourceIndices[NUM_LIGHT_SOURCES];
+#endif 
+
 uniform vec3 modelColors[NUM_ENTITIES];
 uniform mat4 model[NUM_ENTITIES]; // Is this the same model uniform in vs?
 
@@ -30,10 +33,10 @@ void main()
         // Compute diffuse lighting from light sources
         vec3 difference = vec3(1.0);
         for(int i = 0; i < NUM_LIGHT_SOURCES; i++) {
-            vec3 loc = vec3(model[i] * vec4(0.0, 0.0, 0.0, 1.0));
+            vec3 loc = vec3(transpose(model[lightSourceIndices[i]]) * vec4(0.0, 0.0, 0.0, 1.0));
             difference = loc - ourPos;
             float len = length(difference);
-            float preDiffuse = max(dot(normalize(difference), normalize(ourNorm)), 0.0);
+            float preDiffuse = max(dot(normalize(difference), ourNorm), 0.0);
             diffuse += 1 / (1 + k * len) * preDiffuse * vec3(1.0);
         }
         FragColor = vec4(ourColor * (ambient + diffuse), 1.0f);

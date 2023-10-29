@@ -129,11 +129,14 @@ set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
            "${Orbit_SOURCE_DIR}/deps/getopt.c")
 set(ENTITY "${Orbit_SOURCE_DIR}/deps/entity.hpp"
            "${Orbit_SOURCE_DIR}/deps/entity.cpp")
+set(ENTITY_MANAGER "${Orbit_SOURCE_DIR}/deps/entity_manager.hpp"
+                   "${Orbit_SOURCE_DIR}/deps/entity_manager.tpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
           "${Orbit_SOURCE_DIR}/deps/input.cpp")
 set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
            "${Orbit_SOURCE_DIR}/deps/shader.cpp")
-set(SPHERE "${Orbit_SOURCE_DIR}/deps/sphere.cpp")
+set(SPHERE "${Orbit_SOURCE_DIR}/deps/sphere.cpp"
+           "${Orbit_SOURCE_DIR}/deps/entity.hpp")
 set(STB_IMG "${Orbit_SOURCE_DIR}/deps/stb_image.h")
 set(TINYCTHREAD "${Orbit_SOURCE_DIR}/deps/tinycthread.h"
                 "${Orbit_SOURCE_DIR}/deps/tinycthread.c")

@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <map>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -14,16 +15,17 @@ class Shader
 {
 private:
     int entityCount, lightCount;
-    void swapPlaceholders(std::string& vSource, std::string& fSource);
+    void swapPlaceholders();
+    std::string vertexPath, fragmentPath;
+    std::string vertexSource, fragmentSource;
+    std::map<std::string, std::string> placeholderMap;
 public: 
     // the program ID
     unsigned int ID;
 
     // constructor reads and builds the shader
-    Shader(const char *vertexPath, const char* fragmentPath, int entityCount, int lightCount);
+    Shader(const char *vertexPath, const char* fragmentPath);
     
-    // No arg constructor. Need to pass shader paths at some point
-    Shader();
     // use/activate the shader
     void use();
 
@@ -43,7 +45,9 @@ public:
     // The integer ID of the uniform with the given name
     int getUniform(const char *name);
     void setShaderPaths(const char* vertexPath, const char* fragmentPath);
-
+    void readShaderSource();
+    void setPlaceholders(std::map<std::string, std::string>& placeholderMap);
+    void compileAndLink();
 };
 
 #endif

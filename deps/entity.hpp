@@ -6,8 +6,14 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <shader.h>
+#include <type_traits>
 #include <vector>
 
+/**
+ * Entity is the base model for an object to be rendered on the GL window. 
+ * It contains the vertices and indices to be bound to some VBO and EBO, 
+ *  respectively.
+*/
 class Entity
 {
 protected: 
@@ -17,8 +23,6 @@ protected:
     /// @brief Vertices, colors, normals
     std::vector<float> vertices;
 
-    Shader shader;
-
     // Spatial orientation and position
     glm::mat4 model;
 
@@ -26,7 +30,7 @@ protected:
     bool isLight;
 
 public:
-    Entity(Shader& shader);
+    Entity();
     
     // Destructor
     virtual ~Entity() {}
@@ -35,33 +39,21 @@ public:
     virtual void createVertices() = 0;
     virtual void createIndices() = 0;
 
+
     /// Setting up buffer objects
     void setupBuffersAndArrays();
     void enableAttributes();
 
-    void useShader();
-
-    void setPosition(const glm::vec3& pos);
-    void scaleModel(const float scale);
-    void setProjection(const glm::mat4& projection);
-    void setView(const glm::mat4& view);
-    void updateLocalAndModel();
-    void rotateByDegrees(float degrees, glm::vec3& axis);
     std::vector<GLuint>& getIndices();
+    std::vector<float>& getVertices();
     glm::mat4 getModelMatrix();
 
-    GLuint getIndicesSize();
-    GLuint getEBO();
-    GLuint getVAO();
     void bindEBO();
     void bindVBO();
     void bindVertexArray();
     void drawElements();
     void generateBuffers();
     void deleteBuffers();
-    void initObjects();
-    void setLight(bool isLight);
-    bool getLight();
 };
 
 
@@ -77,13 +69,7 @@ private:
 
 public:
     const float DENSITY = .8f;
-    Sphere(float radius, const glm::vec3& color, Shader& shader);
-
+    Sphere(float radius, const glm::vec3& color);
+    Sphere();
 };
-
-class EntityManager
-{
-    std::vector<std::shared_ptr<Entity>> entities;
-};
-
 #endif

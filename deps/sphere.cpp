@@ -4,7 +4,18 @@
  */
 #include <entity.hpp>
 
-Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(shader)
+Sphere::Sphere()
+{
+    radius = 1;
+    color = glm::vec3(1.0);
+    float vol = 4.0 / 3.0 * M_PI;
+    mass = vol * DENSITY; 
+    rings = 80, sectors = 80;
+    createVertices();
+    createIndices();
+}
+
+Sphere::Sphere(float radius, const glm::vec3& color)
 {
     if(radius <= 0) {
         std::cerr << "Must specify positive radius, default to 1" << std::endl;
@@ -13,7 +24,7 @@ Sphere::Sphere(float radius, const glm::vec3& color, Shader& shader) : Entity(sh
     else {
         Sphere::radius = radius;
     }
-    float vol = 4.0 / 4.0 * M_PI * pow(Sphere::radius, 3);
+    float vol = 4.0 / 3.0 * M_PI * pow(Sphere::radius, 3);
     mass = vol * DENSITY; 
     Sphere::color = color;
 
@@ -53,16 +64,15 @@ void Sphere::createVertices()
 
 void Sphere::createIndices()
 {
-    GLuint i, j;
-    for(i = 0; i < vertices.size() - sectors - 4; i += 3) {
-        for(j = 1; j <= 3; j++) {
-            indices.push_back(i + j - 1);
-            indices.push_back(i + j);
-            indices.push_back(i + sectors + j - 1);
+    for(GLuint r = 0; r < rings - 1; r++) {
+        for(GLuint s = 0; s < sectors - 1; s++) {
+            indices.push_back(r * sectors + s);       // Current point
+            indices.push_back(r * sectors + s + 1);   // Next point in the same row
+            indices.push_back((r + 1) * sectors + s); // Corresponding point in the next row
 
-            indices.push_back(i + j);
-            indices.push_back(i + sectors + j - 1);
-            indices.push_back(i + sectors + j);
+            indices.push_back(r * sectors + s + 1);
+            indices.push_back((r + 1) * sectors + s + 1);
+            indices.push_back((r + 1) * sectors + s);
         }
     }
 }
