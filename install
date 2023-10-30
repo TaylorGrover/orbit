@@ -7,6 +7,7 @@ then
     apt-get -y install libxcursor-dev
     apt-get -y install libxi-dev
     apt-get -y install libxext-dev
+    apt-get -y install libxinerama-dev
 else 
     echo "Must be run as root"
 fi
