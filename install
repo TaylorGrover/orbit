@@ -1,7 +1,12 @@
 #! /bin/bash
 
-apt-get install doxygen
-apt-get install libxrandr-dev
-apt-get install libxcursor-dev
-apt-get install libxi-dev
-apt-get install libxext-dev
+if [ $UID -eq 0 ] 
+then
+    apt-get -y install doxygen
+    apt-get -y install libxrandr-dev
+    apt-get -y install libxcursor-dev
+    apt-get -y install libxi-dev
+    apt-get -y install libxext-dev
+else 
+    echo "Must be run as root"
+fi
