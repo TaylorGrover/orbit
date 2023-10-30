@@ -80,6 +80,8 @@ examples/wave
 examples/windows
 examples/qtwindow
 examples/main_window
+examples/paletteGL
+examples/perlin
 tests/*.app
 tests/*.exe
 tests/clipboard

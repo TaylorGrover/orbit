@@ -7,6 +7,7 @@
 
 const float MAX_VELOCITY = 13;
 const float MIN_VELOCITY = .1;
+const float MIN_ACCELERATION = 25;
 const float CAMERA_ROTATION_VELOCITY = 15;
 
 Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const float farClip) : input(input)
@@ -23,7 +24,8 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const fl
 
     // Constants to govern camera speed
     Camera::vel_magnitude = MIN_VELOCITY;
-    Camera::acc_magnitude = 50.0;
+    Camera::acc_magnitude = 25.0;
+    Camera::jerk_magnitude = 1.0;
     Camera::farClip = farClip;
 }
 
@@ -73,10 +75,14 @@ void Camera::updatePosition(float duration)
     position -= (float) d * (vel_magnitude * camera_right * duration);
     position += (float) f * (vel_magnitude * -camera_up * duration);
     position += (float) c * (vel_magnitude * camera_up * duration);
+    acc_magnitude = ((w || s || a || d || f || c) && shift) * jerk_magnitude * duration + acc_magnitude;
     vel_magnitude = ((w || s || a || d || f || c) && shift) * acc_magnitude * duration + vel_magnitude;
     orientation = glm::rotate(orientation, -glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * q), camera_back);
     orientation = glm::rotate(orientation, glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * e), camera_back);
-    if(space) vel_magnitude = MIN_VELOCITY;
+    if(space) {
+        acc_magnitude = MIN_ACCELERATION;
+        vel_magnitude = MIN_VELOCITY;
+    }
     /*// This might be expensive
     if(glm::length(position) > farClip) {
         position = -position;

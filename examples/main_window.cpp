@@ -18,13 +18,13 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define DEBUG_OFF
+#define DEBUG_ON
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 4;
+const GLuint NUM_SPHERES = 1 << 6;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -34,7 +34,7 @@ const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
 
 // Fraction of entities that are lights
-const float LIGHT_FRACTION = .1;
+const float LIGHT_FRACTION = .02;
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
 const float G = 6.64728e9;
@@ -141,11 +141,12 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
  * Naive brute force gravity calculations and collision detection
  * TODO: Find faster solution later
 */
-void updateModels(glm::mat4 models[], int count, float duration)
+void updateModels(glm::mat4 models[], glm::mat3 normals[], int count, float duration)
 {
     // Rescale all the models
     for(int i = 0; i < count; i++) {
         models[i] = glm::rotate(models[i], glm::radians(10.0f * duration), glm::vec3(0.0, 1.0, 0.0));
+        normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
     }
 }
 
@@ -261,24 +262,33 @@ int main()
 
 #ifdef DEBUG_ON
     // For debugging
-    models[0] = glm::translate(glm::scale(glm::mat4(1.0), glm::vec3(5)), glm::vec3(0, 0, 0));
-    models[1] = glm::translate(glm::scale(glm::mat4(1.0), glm::vec3(1)), glm::vec3(15.0, 0.0, 0.0));
+    locations[0] = glm::vec3(0.0);
+    locations[1] = glm::vec3(15.0, 0.0, 0.0);
+
+    models[0] = glm::scale(glm::mat4(1.0), glm::vec3(5));
+    models[0] = glm::translate(models[0], locations[0]);
+
+    models[1] = glm::scale(glm::mat4(1.0), glm::vec3(1));
+    models[1] = glm::translate(models[1], locations[1]);
+    //models[1] = glm::rotate(models[1], glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+
     colors[0] = glm::vec3(1.0);
-    colors[1] = glm::vec3(.75, .75, .85);
+    colors[1] = glm::vec3(.3, .3, .85);
     normals[0] = glm::mat3(glm::transpose(glm::inverse(models[0])));
     normals[1] = glm::mat3(glm::transpose(glm::inverse(models[1])));
     isLightSource[0] = true;
     isLightSource[1] = false;
     lightSourceIndices.push_back(0);
+    //lightSourceIndices.push_back(1);
 #else
     // Uniform distribution for radii, colors, and normal for locations
     std::uniform_real_distribution<float> radii_dist(1, 5);
     std::normal_distribution<float> locations_dist(0, 50);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
-        .1, .1,
-        .3, .3,
-        .7, .7
+        .1, .5,
+        .3, .7,
+        .6, .8
     );
 
     GLuint i;
@@ -352,11 +362,12 @@ int main()
         duration = next - prev;
         prev = next;
         accumulator += duration;
-        //updateModels(models, NUM_SPHERES, duration);
+        //updateModels(models, normals, NUM_SPHERES, duration);
         sphere.bindVertexArray();
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
         shader.setVec3Array("modelColors", colors, NUM_SPHERES);
+        shader.setVec3Array("locations", locations, NUM_SPHERES);
         shader.setMat4Array("model", models, NUM_SPHERES);
         shader.setMat3Array("normalMatrices", normals, NUM_SPHERES);
         shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);

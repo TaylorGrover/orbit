@@ -20,6 +20,7 @@ class Camera {
 
         float vel_magnitude;
         float acc_magnitude;
+        float jerk_magnitude;
         float farClip;
 
         // Keyboard and cursor input management
