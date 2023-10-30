@@ -24,15 +24,12 @@ void Entity::generateBuffers()
 
 void Entity::enableAttributes()
 {
-    const GLuint stride = 9;
+    const GLuint stride = 6;
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) 0);
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) (3 * sizeof(float)));
-
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_UNSIGNED_INT, GL_FALSE, stride * sizeof(float), (void *) (6 * sizeof(float)));
 }
 
 std::vector<GLuint>& Entity::getIndices()

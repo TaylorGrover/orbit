@@ -24,7 +24,7 @@ const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 6;
+const GLuint NUM_SPHERES = 1 << 4;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -32,9 +32,6 @@ const GLuint NUM_SPHERES = 2;
 const char *WINDOW_TITLE = "Orbit";
 const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
-
-// Fraction of entities that are lights
-const float LIGHT_FRACTION = .02;
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
 const float G = 6.64728e9;
@@ -87,18 +84,9 @@ Camera camera(keyCursorInput, glm::vec3(0, 0, 0), glm::rotate(glm::mat4(1.0), gl
 
     
 // Normal distribution
-const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+//const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+const unsigned seed = 9;
 std::default_random_engine rand_engine(seed);
-std::normal_distribution<float> norm(0, 2);
-
-std::vector<std::uniform_real_distribution<float>> getColorDistribution(float rlow, float rhigh, float glow, float ghigh, float blow, float bhigh)
-{
-    std::vector<std::uniform_real_distribution<float>> color_dist;
-    color_dist.push_back(std::uniform_real_distribution<float>(rlow, rhigh));
-    color_dist.push_back(std::uniform_real_distribution<float>(glow, ghigh));
-    color_dist.push_back(std::uniform_real_distribution<float>(blow, bhigh));
-    return color_dist;
-}
 
 void configureWindowHints()
 {
@@ -146,7 +134,19 @@ void updateModels(glm::mat4 models[], glm::mat3 normals[], int count, float dura
     // Rescale all the models
     for(int i = 0; i < count; i++) {
         models[i] = glm::rotate(models[i], glm::radians(10.0f * duration), glm::vec3(0.0, 1.0, 0.0));
+        models[i] = glm::translate(models[i], glm::vec3(1.0, 0.0, 0.0) * duration);
         normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
+    }
+}
+
+template <typename T, GLuint n>
+void printNormal(T normal)
+{
+    for(GLuint i = 0; i < n; i++) {
+        for(GLuint j = 0; j < n; j++) {
+            std::cout << normal[i][j] << " ";
+        }
+        std::cout << "\n";
     }
 }
 
@@ -286,15 +286,15 @@ int main()
     std::normal_distribution<float> locations_dist(0, 50);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
-        .1, .5,
-        .3, .7,
-        .6, .8
+        .1, 1.0,
+        .7, .9,
+        .8, .9
     );
 
-    GLuint i;
+    GLuint i, j;
     for(i = 0; i < NUM_SPHERES; i++) {
         isLightSource[i] = light_dist(rand_engine) <= LIGHT_FRACTION;
-        for(GLuint j = 0; j < 3; j++) {
+        for(j = 0; j < 3; j++) {
             locations[i][j] = locations_dist(rand_engine);
             if(isLightSource[i]) {
                 colors[i][j] = 1;
@@ -306,6 +306,7 @@ int main()
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
         models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
         normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
+        //printNormal<glm::mat3, 3>(normals[i]);
         if(isLightSource[i]) {
             lightSourceIndices.push_back(i);
         }
@@ -335,7 +336,7 @@ int main()
 
     glm::mat4 projection(1.0); // Orthographic or perspective projection
     projection = glm::perspective(glm::radians(FOV), (float) SCR_WIDTH / (float) SCR_HEIGHT, NEAR, FAR);
-    //projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, NEAR, FAR);
+    //projection = glm::ortho(0.0f, (float) SCR_WIDTH, 0.0f, (float) SCR_HEIGHT, NEAR, FAR);
 
     // Maintain rotation speed
     float prev = (float) glfwGetTime();
@@ -369,7 +370,7 @@ int main()
         shader.setVec3Array("modelColors", colors, NUM_SPHERES);
         shader.setVec3Array("locations", locations, NUM_SPHERES);
         shader.setMat4Array("model", models, NUM_SPHERES);
-        shader.setMat3Array("normalMatrices", normals, NUM_SPHERES);
+        shader.setMat3Array("normals", normals, NUM_SPHERES);
         shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);
         shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
         shader.use();

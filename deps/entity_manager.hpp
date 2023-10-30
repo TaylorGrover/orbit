@@ -19,6 +19,9 @@ class EntityManager
     std::vector<glm::mat3> normals;
     std::vector<glm::vec3> colors;
     std::vector<glm::vec3> locations;
+    std::vector<glm::vec3> velocities;
+    std::vector<glm::vec3> accelerations;
+    std::vector<glm::vec3> masses;
     std::vector<GLint> lightSourceIndices;
     std::vector<GLint> isLightSource;
 
@@ -32,6 +35,10 @@ public:
     void bindVertexArray();
     void bindEBO();
     void bindVBO();
+
+    void initializeEntities(GLuint N);
+    void gravitateSerial();
+    void gravitateParallel();
 
     std::vector<glm::mat4>* getModels();
     std::vector<glm::mat3>* getNormals();

@@ -51,9 +51,6 @@ void Sphere::createVertices()
             vertices.push_back(x * radius);
             vertices.push_back(y * radius);
             vertices.push_back(z * radius);
-            vertices.push_back(.4);
-            vertices.push_back(.8);
-            vertices.push_back(.9);
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
