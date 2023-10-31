@@ -58,7 +58,7 @@ void main()
 {
     // ambient light strength
     float ambientStrength = .1;
-    vec3 ambientColor = vec3(0.85, 0.9, 1.0);
+    vec3 ambientColor = vec3(.75, 0.75, 1.0);
     vec3 ambient = ambientStrength * ambientColor;
 
     // attenuation coefficient
@@ -76,7 +76,7 @@ void main()
             difference = loc - ourPos;
             float len = length(difference);
             float preDiffuse = max(dot(normalize(difference), ourNorm), 0.0);
-            diffuse += 1 / (1 + k * len * len) * preDiffuse * vec3(1.0);
+            diffuse += 1 / (1 + k * len * len) * preDiffuse * ambientColor;
         }
         FragColor = vec4(ourColor * (ambient + diffuse), 1.0f);
     } 

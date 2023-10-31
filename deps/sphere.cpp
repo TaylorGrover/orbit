@@ -8,8 +8,6 @@ Sphere::Sphere()
 {
     radius = 1;
     color = glm::vec3(1.0);
-    float vol = 4.0 / 3.0 * M_PI;
-    mass = vol * DENSITY; 
     rings = 80, sectors = 80;
     createVertices();
     createIndices();
@@ -24,8 +22,6 @@ Sphere::Sphere(float radius, const glm::vec3& color)
     else {
         Sphere::radius = radius;
     }
-    float vol = 4.0 / 3.0 * M_PI * pow(Sphere::radius, 3);
-    mass = vol * DENSITY; 
     Sphere::color = color;
 
     // TODO: Decide if this is fine for most radii

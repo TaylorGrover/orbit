@@ -24,7 +24,7 @@ const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 5;
+const GLuint NUM_SPHERES = 1 << 4;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -110,10 +110,9 @@ void updateModels(glm::mat4 models[], glm::mat3 normals[], glm::vec3 locations[]
         interval++;
         glm::vec3 diff;
         float len;
+        std::fill(accelerations, accelerations + count, glm::vec3(0.0));
         for(int i = 0; i < count - 1; i++) {
-            accelerations[i] = glm::vec3(0);
             for(int j = i + 1; j < count; j++) {
-                accelerations[j] = glm::vec3(0);
                 diff = locations[j] - locations[i];
                 len = glm::length(diff);
                 // TODO: Collisions
@@ -318,7 +317,7 @@ int main()
                 colors[i][j] = color_dist[j](rand_engine);
             }
         }
-        radii[i] = isLightSource[i] ? 10 * radii_dist(rand_engine) : radii_dist(rand_engine);
+        radii[i] = isLightSource[i] ? 2 * radii_dist(rand_engine) : radii_dist(rand_engine);
         models[i] = glm::scale(glm::mat4(1.0), glm::vec3(radii[i]));
         models[i] = glm::translate(models[i], locations[i]);
         normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
