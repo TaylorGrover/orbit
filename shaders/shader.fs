@@ -57,12 +57,12 @@ float rand(float a, float b, uint m)
 void main()
 {
     // ambient light strength
-    float ambientStrength = .2;
-    vec3 ambientColor = vec3(0.75, 0.9, 1.0);
+    float ambientStrength = .1;
+    vec3 ambientColor = vec3(0.85, 0.9, 1.0);
     vec3 ambient = ambientStrength * ambientColor;
 
     // attenuation coefficient
-    float k = 0.001; 
+    float k = 0.0001; 
     vec3 diffuse = vec3(0.0);
     vec3 ourColor = modelColors[instanceID];
 
@@ -76,7 +76,7 @@ void main()
             difference = loc - ourPos;
             float len = length(difference);
             float preDiffuse = max(dot(normalize(difference), ourNorm), 0.0);
-            diffuse += 1 / (1 + k * len) * preDiffuse * vec3(1.0);
+            diffuse += 1 / (1 + k * len * len) * preDiffuse * vec3(1.0);
         }
         FragColor = vec4(ourColor * (ambient + diffuse), 1.0f);
     } 

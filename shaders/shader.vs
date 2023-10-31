@@ -21,6 +21,6 @@ void main()
     gl_Position = projection * view * location;
     //gl_Position = projection * view * instanceModel * vec4(aNormal * 1000, 1.0);
     ourPos = vec3(location);
-    ourNorm = normals[gl_InstanceID] * aNorm;
+    ourNorm = aNorm;
     instanceID = gl_InstanceID;
 }

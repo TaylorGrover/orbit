@@ -18,13 +18,13 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define DEBUG_ON
+#define DEBUG_OFF
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 4;
+const GLuint NUM_SPHERES = 1 << 5;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -34,19 +34,7 @@ const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
-const float G = 6.64728e9;
-
-// Distance from earth to Sun (apoapsis)
-const float ES_DIST = 147e6;
-
-
-// Mass of Earth (scaled by 1/10^9)
-
-// Aspect ratio
-const float ASPECT_RATIO = static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT);
-
-// Rotation speed (degrees/second)
-const float ROT_SPEED = 3;
+const float G = 6.64728e-1;
 
 // FOV
 const float FOV = 85;
@@ -56,31 +44,17 @@ const float NEAR = 0.01f;
 const float FAR = 1000;
 
 // Starting camera position
+#ifdef DEBUG_ON
+glm::vec3 camera_position(0.0, -50.0, 0.0);
+#else
 glm::vec3 camera_position(0.0, 0.0, 0.0);
+#endif
 
-// How fast the figure moves
-float z_stride = 1.0f;
-float x_stride = 1.0f;
-
-// Figure acceleration
-float acc_magnitude = 2.0;
-
-// Cursor tracking coordinates
-double cursor_x = SCR_WIDTH / 2, cursor_y = SCR_HEIGHT / 2;
-double diff_x, diff_y;
-
-// The key input selection
-const int KEY_COUNT = 349;
-bool selected[KEY_COUNT];
+// Cursor and keyboard input handling
 Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
 
-
 // Camera rotation globals
-#ifndef DEBUG_ON
 Camera camera(keyCursorInput, camera_position, glm::mat4(1.0), FAR);
-#else
-Camera camera(keyCursorInput, glm::vec3(0, 0, 0), glm::rotate(glm::mat4(1.0), glm::radians(-55.0f), glm::vec3(0.0, 1.0, 0.0)), FAR);
-#endif
 
     
 // Normal distribution
@@ -129,14 +103,36 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
  * Naive brute force gravity calculations and collision detection
  * TODO: Find faster solution later
 */
-void updateModels(glm::mat4 models[], glm::mat3 normals[], int count, float duration)
+void updateModels(glm::mat4 models[], glm::mat3 normals[], glm::vec3 locations[], glm::vec3 velocities[], glm::vec3 accelerations[], float masses[], float radii[], int count, float duration, float accumulated, int &interval)
 {
-    // Rescale all the models
-    for(int i = 0; i < count; i++) {
-        models[i] = glm::rotate(models[i], glm::radians(10.0f * duration), glm::vec3(0.0, 1.0, 0.0));
-        models[i] = glm::translate(models[i], glm::vec3(1.0, 0.0, 0.0) * duration);
-        normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
-    }
+    int tmp;
+    //std::cout << accumulated << std::endl;
+        interval++;
+        glm::vec3 diff;
+        float len;
+        for(int i = 0; i < count - 1; i++) {
+            accelerations[i] = glm::vec3(0);
+            for(int j = i + 1; j < count; j++) {
+                accelerations[j] = glm::vec3(0);
+                diff = locations[j] - locations[i];
+                len = glm::length(diff);
+                // TODO: Collisions
+                if(len > 0) {
+                    glm::vec3 norm = diff / len;
+                    float k = G / (len * len); // G / r^2
+                    accelerations[i] += masses[j] * k * norm;
+                    accelerations[j] += -masses[i] * k * norm;
+                    //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
+                }
+            }
+            //std::cout << accelerations[i][0] << " " << accelerations[i][1] << " " << accelerations[i][2] << std::endl;
+        }
+        for(int i = 0; i < count; i++) {
+            velocities[i] += duration * accelerations[i];
+            locations[i] += duration * velocities[i];
+            models[i] = glm::translate(glm::mat4(1.0), locations[i]);
+            models[i] = glm::scale(models[i], glm::vec3(radii[i]));
+        }
 }
 
 template <typename T, GLuint n>
@@ -252,8 +248,13 @@ int main()
     EntityManager<Sphere> sphereManager;
 
     glm::mat4 models[NUM_SPHERES];
+    float radii[NUM_SPHERES];
     glm::mat3 normals[NUM_SPHERES];
     glm::vec3 locations[NUM_SPHERES];
+    glm::vec3 velocities[NUM_SPHERES];
+    glm::vec3 accelerations[NUM_SPHERES];
+    std::fill(accelerations, accelerations + NUM_SPHERES, glm::vec3(0.0));
+    float masses[NUM_SPHERES];
     std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
     glm::vec3 colors[NUM_SPHERES];
     // Essentially a boolean array
@@ -262,15 +263,25 @@ int main()
 
 #ifdef DEBUG_ON
     // For debugging
+    float start = 100.0;
     locations[0] = glm::vec3(0.0);
-    locations[1] = glm::vec3(15.0, 0.0, 0.0);
+    locations[1] = glm::vec3(-start, 0.0, 0.0);
 
+    radii[0] = 10;
+    radii[1] = 1;
     models[0] = glm::scale(glm::mat4(1.0), glm::vec3(5));
     models[0] = glm::translate(models[0], locations[0]);
 
-    models[1] = glm::scale(glm::mat4(1.0), glm::vec3(1));
+    masses[0] = pow(radii[0], 3) * M_PI * 4 / 3.0 * .8;
+
+    models[1] = glm::scale(glm::mat4(1.0), glm::vec3(radii[1]));
     models[1] = glm::translate(models[1], locations[1]);
+
+    masses[1] = pow(radii[1], 3) * 4.0 * M_PI / 3 * .8;
     //models[1] = glm::rotate(models[1], glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+
+    velocities[0] = glm::vec3(0.0);
+    velocities[1] = glm::vec3(0.0, 0.0, -3);
 
     colors[0] = glm::vec3(1.0);
     colors[1] = glm::vec3(.3, .3, .85);
@@ -279,11 +290,14 @@ int main()
     isLightSource[0] = true;
     isLightSource[1] = false;
     lightSourceIndices.push_back(0);
-    //lightSourceIndices.push_back(1);
+
+    // Mass of sun and planet
+
 #else
     // Uniform distribution for radii, colors, and normal for locations
     std::uniform_real_distribution<float> radii_dist(1, 5);
     std::normal_distribution<float> locations_dist(0, 50);
+    std::normal_distribution<float> velocity_dist(0, 1);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
         .1, 1.0,
@@ -296,6 +310,7 @@ int main()
         isLightSource[i] = light_dist(rand_engine) <= LIGHT_FRACTION;
         for(j = 0; j < 3; j++) {
             locations[i][j] = locations_dist(rand_engine);
+            velocities[i][j] = velocity_dist(rand_engine);
             if(isLightSource[i]) {
                 colors[i][j] = 1;
             }
@@ -303,9 +318,11 @@ int main()
                 colors[i][j] = color_dist[j](rand_engine);
             }
         }
-        models[i] = glm::translate(glm::mat4(1.0), locations[i]);
-        models[i] = glm::scale(models[i], glm::vec3(radii_dist(rand_engine)));
+        radii[i] = isLightSource[i] ? 10 * radii_dist(rand_engine) : radii_dist(rand_engine);
+        models[i] = glm::scale(glm::mat4(1.0), glm::vec3(radii[i]));
+        models[i] = glm::translate(models[i], locations[i]);
         normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
+        masses[i] = 4.0 * pow(radii[i], 3) * M_PI / 3.0 * .8;
         //printNormal<glm::mat3, 3>(normals[i]);
         if(isLightSource[i]) {
             lightSourceIndices.push_back(i);
@@ -346,7 +363,8 @@ int main()
 
     // ############### //
     // ## Main Loop ## //
-    float accumulator;
+    float accumulator = 0;
+    int interval = 0;
 
     while(!glfwWindowShouldClose(window)) {
         // Adjust camera position and orientation as needed
@@ -363,7 +381,7 @@ int main()
         duration = next - prev;
         prev = next;
         accumulator += duration;
-        //updateModels(models, normals, NUM_SPHERES, duration);
+        updateModels(models, normals, locations, velocities, accelerations, masses, radii, NUM_SPHERES, duration, accumulator, interval);
         sphere.bindVertexArray();
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
