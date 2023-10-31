@@ -18,13 +18,15 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define DEBUG_ON
+#define DEBUG_OFF
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
+const float DENSITY = 0.8f;
+
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 4;
+const GLuint NUM_SPHERES = 1 << 6;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -34,7 +36,7 @@ const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
-const float G = 6.64728e-1;
+const float G = 6.64728e-2;
 
 // FOV
 const float FOV = 85;
@@ -103,7 +105,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
  * Naive brute force gravity calculations and collision detection
  * TODO: Find faster solution later
 */
-void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float> masses, std::vector<float>& radii, int count, float duration, float accumulated, int &interval)
+void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float> masses, std::vector<float>& radii, std::vector<GLint>& isLightSource, std::vector<GLint>& lightSourceIndices, float duration, float accumulated, int &interval)
 {
     int tmp;
     //std::cout << accumulated << std::endl;
@@ -116,17 +118,60 @@ void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normal
                 diff = locations[j] - locations[i];
                 len = glm::length(diff);
                 // TODO: Collisions
-                if(len > 0) {
+                if(len <= radii[i] + radii[j]) {
+                    glm::vec3 momentum = masses[i] * velocities[i] + masses[j] * velocities[j];
+                    glm::vec3 newVel = momentum / (masses[i] + masses[j]);
+                    velocities[i] = newVel;
+                    velocities[j] = newVel;
+                    /*glm::vec3 midpoint = (locations[i] + locations[j]) / 2.0f;
+                    float newMass = masses[i] + masses[j];
+                    float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
+                    // Conserve momentum
+                    glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
+                    int eraseIndex, keepIndex;
+                    if(isLightSource[i]) {
+                        // Delete j, because light source absorbs all
+                        keepIndex = i;
+                        eraseIndex = j;
+                    }
+                    else {
+                        keepIndex = j;
+                        eraseIndex = i;
+                    }
+                    masses[keepIndex] = newMass;
+                    locations[keepIndex] = midpoint;
+                    radii[keepIndex] = newRadius;
+                    velocities[keepIndex] = newVel;
+
+                    models.erase(models.begin() + eraseIndex);
+                    normals.erase(normals.begin() + eraseIndex);
+                    locations.erase(locations.begin() + eraseIndex);
+                    velocities.erase(velocities.begin() + eraseIndex);
+                    accelerations.erase(accelerations.begin() + eraseIndex);
+                    masses.erase(masses.begin() + eraseIndex);
+                    radii.erase(radii.begin() + eraseIndex);
+                    isLightSource.erase(isLightSource.begin() + eraseIndex);
+                    for(GLuint k = 0; k < lightSourceIndices.size(); k++) {
+                        if(lightSourceIndices[k] == eraseIndex) {
+                            lightSourceIndices.erase(lightSourceIndices.begin() + k);
+                        }
+                        else if(lightSourceIndices[k] > eraseIndex) {
+                            lightSourceIndices[k]--;
+                        }
+                    }
+                    //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
+                    */
+                }
+                else {
                     glm::vec3 norm = diff / len;
                     float k = G / (len * len); // G / r^2
                     accelerations[i] += masses[j] * k * norm;
                     accelerations[j] += -masses[i] * k * norm;
-                    //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
                 }
             }
             //std::cout << accelerations[i][0] << " " << accelerations[i][1] << " " << accelerations[i][2] << std::endl;
         }
-        for(int i = 0; i < count; i++) {
+        for(GLuint i = 0; i < locations.size(); i++) {
             velocities[i] += duration * accelerations[i];
             locations[i] += duration * velocities[i];
             models[i] = glm::translate(glm::mat4(1.0), locations[i]);
@@ -193,57 +238,6 @@ int main()
     // Wireframe mode (must be called after gladLoadGLLoader
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // Generate vertices for sphere
-    /*GLuint rings = 200, sectors = 200;
-    std::vector<float> vertices = generateSphereVertices(5000, rings, sectors);
-    std::vector<GLuint> indices = generateSphereIndices(vertices, rings, sectors);
-
-    // 3D Diamond
-    float size = 20;
-    float vertices[] = {
-         0.0f,   size,  0.0f,   1.0f, 0.0f, 0.0f, // top
-         0.0f,   0.0f,  size/4, 0.5f, 0.5f, 0.0f, // front
-         size/2, 0.0f,  0.0f,   0.5f, 0.4f, 0.1f, // right
-        -size/2, 0.0f,  0.0f,   0.5f, 0.4f, 0.1f, // left
-         0.0f,   0.0f, -size/4, 0.5f, 0.5f, 0.0f, // back
-         0.0f,  -size,  0.0f,   4.0f, 3.0f, 3.0f, // bottom
-    };
-
-    GLuint indices[] = {
-        0, 1, 2,
-        0, 1, 3,
-        0, 4, 2,
-        0, 4, 3,
-        5, 1, 2,
-        5, 1, 3,
-        5, 4, 2,
-        5, 4, 3,
-    }; 
-
-
-    // Setup textures
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("deps/img/wall.jpg", &width, &height, &nrChannels, 0);
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    if(data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cerr << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data); */
-
-    //glEnableVertexAttribArray(2);
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-
     EntityManager<Sphere> sphereManager;
 
     std::vector<glm::mat4> models(NUM_SPHERES, glm::mat4(1.0));
@@ -260,7 +254,7 @@ int main()
 
 #ifdef DEBUG_ON
     // For debugging
-    float start = 100.0;
+    float start = 17.0;
     locations[0] = glm::vec3(0.0);
     locations[1] = glm::vec3(-start, 0.0, 0.0);
 
@@ -278,7 +272,7 @@ int main()
     //models[1] = glm::rotate(models[1], glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 
     velocities[0] = glm::vec3(0.0);
-    velocities[1] = glm::vec3(0.0, 0.0, -3);
+    velocities[1] = glm::vec3(0.0, 0.0, -sqrt(masses[0] * G / start));
 
     colors[0] = glm::vec3(1.0);
     colors[1] = glm::vec3(.3, .3, .85);
@@ -293,8 +287,8 @@ int main()
 #else
     // Uniform distribution for radii, colors, and normal for locations
     std::uniform_real_distribution<float> radii_dist(1, 5);
-    std::normal_distribution<float> locations_dist(0, 50);
-    std::normal_distribution<float> velocity_dist(0, 1);
+    std::normal_distribution<float> locations_dist(0, 100);
+    std::normal_distribution<float> velocity_dist(0, 5);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
         .1, 1.0,
@@ -315,7 +309,7 @@ int main()
                 colors[i][j] = color_dist[j](rand_engine);
             }
         }
-        radii[i] = isLightSource[i] ? 2 * radii_dist(rand_engine) : radii_dist(rand_engine);
+        radii[i] = isLightSource[i] ? 4 * radii_dist(rand_engine) : radii_dist(rand_engine);
         models[i] = glm::scale(glm::mat4(1.0), glm::vec3(radii[i]));
         models[i] = glm::translate(models[i], locations[i]);
         normals[i] = glm::mat3(glm::transpose(glm::inverse(models[i])));
@@ -378,7 +372,7 @@ int main()
         duration = next - prev;
         prev = next;
         accumulator += duration;
-        updateModels(models, normals, locations, velocities, accelerations, masses, radii, NUM_SPHERES, duration, accumulator, interval);
+        updateModels(models, normals, locations, velocities, accelerations, masses, radii, isLightSource, lightSourceIndices, duration, accumulator, interval);
         sphere.bindVertexArray();
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);

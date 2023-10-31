@@ -58,7 +58,7 @@ void main()
 {
     // ambient light strength
     float ambientStrength = .1;
-    vec3 ambientColor = vec3(.75, 0.75, 1.0);
+    vec3 ambientColor = vec3(0.69, 0.79, 1.0);
     vec3 ambient = ambientStrength * ambientColor;
 
     // attenuation coefficient

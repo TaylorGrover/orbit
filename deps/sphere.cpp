@@ -4,6 +4,8 @@
  */
 #include <entity.hpp>
 
+const float DENSITY = 0.8f;
+
 Sphere::Sphere()
 {
     radius = 1;
