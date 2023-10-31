@@ -18,7 +18,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define DEBUG_OFF
+#define DEBUG_ON
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
@@ -103,16 +103,16 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
  * Naive brute force gravity calculations and collision detection
  * TODO: Find faster solution later
 */
-void updateModels(glm::mat4 models[], glm::mat3 normals[], glm::vec3 locations[], glm::vec3 velocities[], glm::vec3 accelerations[], float masses[], float radii[], int count, float duration, float accumulated, int &interval)
+void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float> masses, std::vector<float>& radii, int count, float duration, float accumulated, int &interval)
 {
     int tmp;
     //std::cout << accumulated << std::endl;
         interval++;
         glm::vec3 diff;
         float len;
-        std::fill(accelerations, accelerations + count, glm::vec3(0.0));
-        for(int i = 0; i < count - 1; i++) {
-            for(int j = i + 1; j < count; j++) {
+        std::fill(accelerations.begin(), accelerations.end(), glm::vec3(0.0));
+        for(GLuint i = 0; i < locations.size() - 1; i++) {
+            for(GLuint j = i + 1; j < locations.size(); j++) {
                 diff = locations[j] - locations[i];
                 len = glm::length(diff);
                 // TODO: Collisions
@@ -246,18 +246,16 @@ int main()
 
     EntityManager<Sphere> sphereManager;
 
-    glm::mat4 models[NUM_SPHERES];
-    float radii[NUM_SPHERES];
-    glm::mat3 normals[NUM_SPHERES];
-    glm::vec3 locations[NUM_SPHERES];
-    glm::vec3 velocities[NUM_SPHERES];
-    glm::vec3 accelerations[NUM_SPHERES];
-    std::fill(accelerations, accelerations + NUM_SPHERES, glm::vec3(0.0));
-    float masses[NUM_SPHERES];
-    std::fill(models, models + NUM_SPHERES, glm::mat4(1.0));
-    glm::vec3 colors[NUM_SPHERES];
+    std::vector<glm::mat4> models(NUM_SPHERES, glm::mat4(1.0));
+    std::vector<float> radii(NUM_SPHERES);
+    std::vector<glm::mat3> normals(NUM_SPHERES);
+    std::vector<glm::vec3> locations(NUM_SPHERES);
+    std::vector<glm::vec3> velocities(NUM_SPHERES);
+    std::vector<glm::vec3> accelerations(NUM_SPHERES, glm::vec3(0.0));
+    std::vector<float> masses(NUM_SPHERES);
+    std::vector<glm::vec3> colors(NUM_SPHERES, glm::vec3(0.0));
     // Essentially a boolean array
-    GLint isLightSource[NUM_SPHERES];
+    std::vector<GLint> isLightSource(NUM_SPHERES, 0);
     std::vector<GLint> lightSourceIndices;
 
 #ifdef DEBUG_ON
@@ -384,11 +382,11 @@ int main()
         sphere.bindVertexArray();
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
-        shader.setVec3Array("modelColors", colors, NUM_SPHERES);
-        shader.setVec3Array("locations", locations, NUM_SPHERES);
-        shader.setMat4Array("model", models, NUM_SPHERES);
-        shader.setMat3Array("normals", normals, NUM_SPHERES);
-        shader.setIntArray("isLightSource", isLightSource, NUM_SPHERES);
+        shader.setVec3Array("modelColors", colors.data(), colors.size());
+        shader.setVec3Array("locations", locations.data(), locations.size());
+        shader.setMat4Array("model", models.data(), models.size());
+        shader.setMat3Array("normals", normals.data(), normals.size());
+        shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
         shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
         shader.use();
 
