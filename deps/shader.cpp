@@ -29,10 +29,10 @@ void Shader::swapPlaceholders()
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) 
 {
-    Shader::vertexPath = vertexPath;
-    Shader::fragmentPath = fragmentPath;
-    readShaderSource();
+    setShaderPaths(vertexPath, fragmentPath);
 }
+
+Shader::Shader() {}
 
 /**
  * Use the given vertexPath and fragmentPath to read the shader source into the
@@ -68,40 +68,9 @@ void Shader::readShaderSource()
 
 void Shader::setShaderPaths(const char* vertexPath, const char* fragmentPath)
 {
-    // 1. retrieve the vertex/fragment source code from filePath
-    std::string vertexCode;
-    std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
-
-    // ensure ifstream objects can throw exceptions:
-    vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        // open files
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
-
-        std::stringstream vShaderStream, fShaderStream;
-        // read file's buffer contents into streams
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-
-        // close file handlers
-        vShaderFile.close();
-        fShaderFile.close();
-        
-        // convert stream into string
-        vertexCode = vShaderStream.str();
-
-        fragmentCode = fShaderStream.str();
-
-        // Replace __NUM_ENTITIES__ with the given value
-        swapPlaceholders();
-
-    } catch(std::ifstream::failure& err) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
-    }
+    Shader::vertexPath = vertexPath;
+    Shader::fragmentPath = fragmentPath;
+    readShaderSource();
 }
 
 void Shader::compileAndLink()

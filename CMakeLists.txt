@@ -25,7 +25,7 @@ include(CMakeDependentOption)
 include(CTest) # Include CTest https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html
 
 # Include directory visibility for tests and examples
-include_directories("${Orbit_SOURCE_DIR}/deps" "${Orbit_SOURCE_DIR}/include")
+include_directories("${Orbit_SOURCE_DIR}/deps" "${Orbit_SOURCE_DIR}/include" "/usr/include/x86_64-linux-gnu/qt5")
 
 if (Orbit_USE_OSMESA)
     message(FATAL_ERROR "Orbit_USE_OSMESA has been removed; set the Orbit_PLATFORM init hint")
@@ -129,8 +129,8 @@ set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
            "${Orbit_SOURCE_DIR}/deps/getopt.c")
 set(ENTITY "${Orbit_SOURCE_DIR}/deps/entity.hpp"
            "${Orbit_SOURCE_DIR}/deps/entity.cpp")
-set(ENTITY_MANAGER "${Orbit_SOURCE_DIR}/deps/entity_manager.hpp"
-                   "${Orbit_SOURCE_DIR}/deps/entity_manager.tpp")
+set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/sphere_manager.hpp"
+                   "${Orbit_SOURCE_DIR}/deps/sphere_manager.cpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
           "${Orbit_SOURCE_DIR}/deps/input.cpp")
 set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"

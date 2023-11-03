@@ -3,7 +3,7 @@
 #include <cmath>
 #include <camera.hpp>
 #include <entity.hpp>
-#include <entity_manager.hpp>
+#include <sphere_manager.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,14 +11,18 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <input.hpp>
-#include <qtwindow.h>
 #include <map>
 #include <shader.h>
+#include <string.h>
 #include <random>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define DEBUG_OFF
+
+
+extern const float LIGHT_FRACTION;
+extern std::vector<std::uniform_real_distribution<float>> getColorDistribution(float, float, float, float, float, float);
 
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
@@ -60,8 +64,8 @@ Camera camera(keyCursorInput, camera_position, glm::mat4(1.0), FAR);
 
     
 // Normal distribution
-const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-//const unsigned seed = 9;
+//const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+const unsigned seed = 11;
 std::default_random_engine rand_engine(seed);
 
 void configureWindowHints()
@@ -108,7 +112,6 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float>& masses, std::vector<float>& radii, std::vector<GLint>& isLightSource, std::vector<GLint>& lightSourceIndices, std::vector<glm::vec3>& colors, float duration, float accumulated, int &interval)
 {
     //std::cout << accumulated << std::endl;
-    interval++;
     glm::vec3 diff;
     float len;
     std::fill(accelerations.begin(), accelerations.end(), glm::vec3(0.0));
@@ -151,17 +154,22 @@ void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normal
                 masses.erase(masses.begin() + eraseIndex);
                 isLightSource.erase(isLightSource.begin() + eraseIndex);
                 colors.erase(colors.begin() + eraseIndex);
+                int lightSourceDeleteIndex = -1;
                 for(GLuint k = 0; k < lightSourceIndices.size(); k++) {
                     if(lightSourceIndices[k] == eraseIndex) {
-                        lightSourceIndices.erase(lightSourceIndices.begin() + k);
+                        //lightSourceIndices.erase(lightSourceIndices.begin() + k);
+                        lightSourceDeleteIndex = k;
                     }
                     else if(lightSourceIndices[k] > eraseIndex) {
                         lightSourceIndices[k]--;
                     }
                 }
+                // Delete the light source index if it's being erased
+                if(lightSourceDeleteIndex != -1) {
+                    lightSourceIndices.erase(lightSourceIndices.begin() + lightSourceDeleteIndex);
+                    lightSourceDeleteIndex = -1;
+                }
                 std::cout << lightSourceIndices.size() << std::endl;
-                //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
-                
             }
             else {
                 glm::vec3 norm = diff / len;
@@ -170,7 +178,6 @@ void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normal
                 accelerations[j] += -masses[i] * k * norm;
             }
         }
-        //std::cout << accelerations[i][0] << " " << accelerations[i][1] << " " << accelerations[i][2] << std::endl;
     }
     for(GLuint i = 0; i < locations.size(); i++) {
         velocities[i] += duration * accelerations[i];
@@ -180,21 +187,10 @@ void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normal
     }
 }
 
-template <typename T, GLuint n>
-void printNormal(T normal)
+int main(int argc, char* argv[])
 {
-    for(GLuint i = 0; i < n; i++) {
-        for(GLuint j = 0; j < n; j++) {
-            std::cout << normal[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-}
+    // Set up Qt Window
 
-int main()
-{
-    // Random seed
-    std::srand(1);
     if(!glfwInit()) {
         std::cerr << "Unable to initialize GLFW\n";
         return -1;
@@ -203,8 +199,8 @@ int main()
     // glfwWindowHint calls
     configureWindowHints();
 
-    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
     if(window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -239,8 +235,8 @@ int main()
     // Wireframe mode (must be called after gladLoadGLLoader
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    EntityManager<Sphere> sphereManager;
-    sphereManager.initializeEntities(NUM_SPHERES, rand_engine);
+    SphereManager sphereManager(VERTEX_PATH, FRAG_PATH);
+    sphereManager.initializeSpheres(NUM_SPHERES, rand_engine);
 
     std::vector<glm::mat4> models(NUM_SPHERES, glm::mat4(1.0));
     std::vector<float> radii(NUM_SPHERES);
@@ -321,10 +317,10 @@ int main()
             lightSourceIndices.push_back(i);
         }
     } 
-    std::cout << lightSourceIndices.size() << std::endl;
+    //std::cout << lightSourceIndices.size() << std::endl;
 #endif
 
-    Shader shader = Shader(VERTEX_PATH, FRAG_PATH);
+    Shader shader(VERTEX_PATH, FRAG_PATH);
     // Get replacement map for placeholder strings in shader source
     std::map<std::string, std::string> shaderMacroMap {
         std::make_pair("__NUM_ENTITIES__", std::to_string(NUM_SPHERES)),
@@ -358,7 +354,6 @@ int main()
     // ## Main Loop ## //
     float accumulator = 0;
     int interval = 0;
-    bool isPaused = false;
 
     while(!glfwWindowShouldClose(window)) {
         // Adjust camera position and orientation as needed
@@ -388,6 +383,7 @@ int main()
         shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
         shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
         shader.setInt("remainingLights", (int) lightSourceIndices.size());
+        //std::cout << lightSourceIndices.size() << std::endl;
         shader.use();
 
         glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, models.size());

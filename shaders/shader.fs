@@ -85,5 +85,6 @@ void main()
     } 
     else {
         FragColor = vec4(ourColor * ambientColor, 1.0);
+        //FragColor = vec4((ourColor + rand(-.5f, .5f, hash(floatBitsToUint(ourPos)))) * ambientColor, 1.0);
     }
 }
