@@ -22,7 +22,7 @@ endif()
 add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
 add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT} ${ENTITY} ${SPHERE} ${ENTITY_MANAGER})
-add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER})
+add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER} ${INPUT})
 add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
 # Target link library for custom app

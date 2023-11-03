@@ -30,6 +30,9 @@ class Camera {
         Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const float farClip);
         void updateCameraOrientation(float duration);
         void updatePosition(float duration);
+        glm::vec3 getBack();
+        glm::vec3 getRight();
+        glm::vec3 getUp();
         glm::mat4 getView();
 };
 #endif

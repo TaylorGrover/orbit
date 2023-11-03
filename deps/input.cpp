@@ -19,9 +19,12 @@ void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 {
     if(action == GLFW_PRESS || action == GLFW_REPEAT) {
         setKey(key);
-        if(key == GLFW_KEY_ESCAPE) {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-            //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        setToggle(key);
+        switch(key) {
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+                //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                break;
         }
     }
     else if(action == GLFW_RELEASE) {
@@ -72,4 +75,14 @@ void Input::resetDiff()
 {
     diff_x = 0;
     diff_y = 0;
+}
+
+void Input::setToggle(int key)
+{
+    toggled[key] = !toggled[key];
+}
+
+bool Input::isToggled(int key)
+{
+    return toggled[key];
 }

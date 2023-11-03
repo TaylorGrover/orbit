@@ -1,10 +1,10 @@
-Start testing: Oct 06 22:08 MDT
+Start testing: Nov 02 19:03 MDT
 ----------------------------------------------------------
 1/2 Testing: GLMTest
 1/2 Test: GLMTest
 Command: "/home/jonaz/Documents/prog/orbit/tests/test_glm"
 Directory: /home/jonaz/Documents/prog/orbit/tests
-"GLMTest" start time: Oct 06 22:08 MDT
+"GLMTest" start time: Nov 02 19:03 MDT
 Output:
 ----------------------------------------------------------
 [-8.74228e-08, 3, 2, 1]
@@ -12,7 +12,7 @@ Output:
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"GLMTest" end time: Oct 06 22:08 MDT
+"GLMTest" end time: Nov 02 19:03 MDT
 "GLMTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,15 +20,15 @@ Test Passed.
 2/2 Test: InputTest
 Command: "/home/jonaz/Documents/prog/orbit/tests/test_input"
 Directory: /home/jonaz/Documents/prog/orbit/tests
-"InputTest" start time: Oct 06 22:08 MDT
+"InputTest" start time: Nov 02 19:03 MDT
 Output:
 ----------------------------------------------------------
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"InputTest" end time: Oct 06 22:08 MDT
+"InputTest" end time: Nov 02 19:03 MDT
 "InputTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Oct 06 22:08 MDT
+End testing: Nov 02 19:03 MDT

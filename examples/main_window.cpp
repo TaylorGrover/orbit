@@ -26,7 +26,7 @@ const GLuint SCR_HEIGHT = 1600;
 const float DENSITY = 0.8f;
 
 #ifndef DEBUG_ON
-const GLuint NUM_SPHERES = 1 << 6;
+const GLuint NUM_SPHERES = 1 << 5;
 #else
 const GLuint NUM_SPHERES = 2;
 #endif
@@ -36,7 +36,7 @@ const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
 
 // Gravitational constant (scaled by 10^18) N * m^2 / kg^2
-const float G = 6.64728e-2;
+const float G = 6.64728;
 
 // FOV
 const float FOV = 85;
@@ -60,8 +60,8 @@ Camera camera(keyCursorInput, camera_position, glm::mat4(1.0), FAR);
 
     
 // Normal distribution
-//const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-const unsigned seed = 9;
+const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+//const unsigned seed = 9;
 std::default_random_engine rand_engine(seed);
 
 void configureWindowHints()
@@ -105,78 +105,79 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
  * Naive brute force gravity calculations and collision detection
  * TODO: Find faster solution later
 */
-void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float> masses, std::vector<float>& radii, std::vector<GLint>& isLightSource, std::vector<GLint>& lightSourceIndices, float duration, float accumulated, int &interval)
+void updateModels(std::vector<glm::mat4>& models, std::vector<glm::mat3>& normals, std::vector<glm::vec3>& locations, std::vector<glm::vec3>& velocities, std::vector<glm::vec3>& accelerations, std::vector<float>& masses, std::vector<float>& radii, std::vector<GLint>& isLightSource, std::vector<GLint>& lightSourceIndices, std::vector<glm::vec3>& colors, float duration, float accumulated, int &interval)
 {
-    int tmp;
     //std::cout << accumulated << std::endl;
-        interval++;
-        glm::vec3 diff;
-        float len;
-        std::fill(accelerations.begin(), accelerations.end(), glm::vec3(0.0));
-        for(GLuint i = 0; i < locations.size() - 1; i++) {
-            for(GLuint j = i + 1; j < locations.size(); j++) {
-                diff = locations[j] - locations[i];
-                len = glm::length(diff);
-                // TODO: Collisions
-                if(len <= radii[i] + radii[j]) {
-                    glm::vec3 momentum = masses[i] * velocities[i] + masses[j] * velocities[j];
-                    glm::vec3 newVel = momentum / (masses[i] + masses[j]);
-                    velocities[i] = newVel;
-                    velocities[j] = newVel;
-                    /*glm::vec3 midpoint = (locations[i] + locations[j]) / 2.0f;
-                    float newMass = masses[i] + masses[j];
-                    float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
-                    // Conserve momentum
-                    glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
-                    int eraseIndex, keepIndex;
-                    if(isLightSource[i]) {
-                        // Delete j, because light source absorbs all
-                        keepIndex = i;
-                        eraseIndex = j;
-                    }
-                    else {
-                        keepIndex = j;
-                        eraseIndex = i;
-                    }
-                    masses[keepIndex] = newMass;
-                    locations[keepIndex] = midpoint;
-                    radii[keepIndex] = newRadius;
-                    velocities[keepIndex] = newVel;
-
-                    models.erase(models.begin() + eraseIndex);
-                    normals.erase(normals.begin() + eraseIndex);
-                    locations.erase(locations.begin() + eraseIndex);
-                    velocities.erase(velocities.begin() + eraseIndex);
-                    accelerations.erase(accelerations.begin() + eraseIndex);
-                    masses.erase(masses.begin() + eraseIndex);
-                    radii.erase(radii.begin() + eraseIndex);
-                    isLightSource.erase(isLightSource.begin() + eraseIndex);
-                    for(GLuint k = 0; k < lightSourceIndices.size(); k++) {
-                        if(lightSourceIndices[k] == eraseIndex) {
-                            lightSourceIndices.erase(lightSourceIndices.begin() + k);
-                        }
-                        else if(lightSourceIndices[k] > eraseIndex) {
-                            lightSourceIndices[k]--;
-                        }
-                    }
-                    //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
-                    */
+    interval++;
+    glm::vec3 diff;
+    float len;
+    std::fill(accelerations.begin(), accelerations.end(), glm::vec3(0.0));
+    for(GLuint i = 0; i < locations.size() - 1; i++) {
+        for(GLuint j = i + 1; j < locations.size(); j++) {
+            diff = locations[j] - locations[i];
+            len = glm::length(diff);
+            // TODO: Collisions
+            if(len <= radii[i] + radii[j]) {
+                /*glm::vec3 momentum = masses[i] * velocities[i] + masses[j] * velocities[j];
+                glm::vec3 newVel = momentum / (masses[i] + masses[j]);
+                velocities[i] = newVel;
+                velocities[j] = newVel;*/
+                //glm::vec3 midpoint = (locations[i] + locations[j]) / 2.0f;
+                float newMass = masses[i] + masses[j];
+                float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
+                // Conserve momentum
+                glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
+                int eraseIndex, keepIndex;
+                if(isLightSource[i]) {
+                    // Delete j, because light source absorbs all
+                    keepIndex = i;
+                    eraseIndex = j;
                 }
                 else {
-                    glm::vec3 norm = diff / len;
-                    float k = G / (len * len); // G / r^2
-                    accelerations[i] += masses[j] * k * norm;
-                    accelerations[j] += -masses[i] * k * norm;
+                    keepIndex = j;
+                    eraseIndex = i;
                 }
+                masses[keepIndex] = newMass;
+                //locations[keepIndex] = midpoint;
+                radii[keepIndex] = newRadius;
+                velocities[keepIndex] = newVel;
+
+                models.erase(models.begin() + eraseIndex);
+                radii.erase(radii.begin() + eraseIndex);
+                normals.erase(normals.begin() + eraseIndex);
+                locations.erase(locations.begin() + eraseIndex);
+                velocities.erase(velocities.begin() + eraseIndex);
+                accelerations.erase(accelerations.begin() + eraseIndex);
+                masses.erase(masses.begin() + eraseIndex);
+                isLightSource.erase(isLightSource.begin() + eraseIndex);
+                colors.erase(colors.begin() + eraseIndex);
+                for(GLuint k = 0; k < lightSourceIndices.size(); k++) {
+                    if(lightSourceIndices[k] == eraseIndex) {
+                        lightSourceIndices.erase(lightSourceIndices.begin() + k);
+                    }
+                    else if(lightSourceIndices[k] > eraseIndex) {
+                        lightSourceIndices[k]--;
+                    }
+                }
+                std::cout << lightSourceIndices.size() << std::endl;
+                //std::cout << accelerations[j][0] << " " << accelerations[j][1] << " " << accelerations[j][2] << std::endl;
+                
             }
-            //std::cout << accelerations[i][0] << " " << accelerations[i][1] << " " << accelerations[i][2] << std::endl;
+            else {
+                glm::vec3 norm = diff / len;
+                float k = G / (len * len); // G / r^2
+                accelerations[i] += masses[j] * k * norm;
+                accelerations[j] += -masses[i] * k * norm;
+            }
         }
-        for(GLuint i = 0; i < locations.size(); i++) {
-            velocities[i] += duration * accelerations[i];
-            locations[i] += duration * velocities[i];
-            models[i] = glm::translate(glm::mat4(1.0), locations[i]);
-            models[i] = glm::scale(models[i], glm::vec3(radii[i]));
-        }
+        //std::cout << accelerations[i][0] << " " << accelerations[i][1] << " " << accelerations[i][2] << std::endl;
+    }
+    for(GLuint i = 0; i < locations.size(); i++) {
+        velocities[i] += duration * accelerations[i];
+        locations[i] += duration * velocities[i];
+        models[i] = glm::translate(glm::mat4(1.0), locations[i]);
+        models[i] = glm::scale(models[i], glm::vec3(radii[i]));
+    }
 }
 
 template <typename T, GLuint n>
@@ -202,8 +203,8 @@ int main()
     // glfwWindowHint calls
     configureWindowHints();
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
-    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
+    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
     if(window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -239,6 +240,7 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     EntityManager<Sphere> sphereManager;
+    sphereManager.initializeEntities(NUM_SPHERES, rand_engine);
 
     std::vector<glm::mat4> models(NUM_SPHERES, glm::mat4(1.0));
     std::vector<float> radii(NUM_SPHERES);
@@ -356,6 +358,7 @@ int main()
     // ## Main Loop ## //
     float accumulator = 0;
     int interval = 0;
+    bool isPaused = false;
 
     while(!glfwWindowShouldClose(window)) {
         // Adjust camera position and orientation as needed
@@ -372,7 +375,9 @@ int main()
         duration = next - prev;
         prev = next;
         accumulator += duration;
-        updateModels(models, normals, locations, velocities, accelerations, masses, radii, isLightSource, lightSourceIndices, duration, accumulator, interval);
+        if(!keyCursorInput.isToggled(GLFW_KEY_Z)) {
+            updateModels(models, normals, locations, velocities, accelerations, masses, radii, isLightSource, lightSourceIndices, colors, duration, accumulator, interval);
+        }
         sphere.bindVertexArray();
         shader.setTransform("projection", projection);
         shader.setTransform("view", view);
@@ -382,9 +387,10 @@ int main()
         shader.setMat3Array("normals", normals.data(), normals.size());
         shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
         shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
+        shader.setInt("remainingLights", (int) lightSourceIndices.size());
         shader.use();
 
-        glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, NUM_SPHERES);
+        glDrawElementsInstanced(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, 0, models.size());
 
         //std::cout << glGetError() << std::endl;
 

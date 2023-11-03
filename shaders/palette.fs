@@ -10,5 +10,5 @@ uniform float boff = 0.0f;
 void main()
 {
     // Adjustable color scheme
-    FragColor = vec4(ourColor.x + roff, ourColor.y + goff, ourColor.z + boff, 1.0f);
+    FragColor = vec4(roff, goff, boff, 1.0f);
 }

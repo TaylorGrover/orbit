@@ -21,13 +21,14 @@ LabelsForSubprojects:
 
 # Submission information
 SubmitURL: http://
+SubmitInactivityTimeout: 
 
 # Dashboard start time
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/usr/bin/cmake" "/home/jonaz/Documents/prog/orbit"
-MakeCommand: /usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
+ConfigureCommand: "/usr/local/bin/cmake" "/home/jonaz/Documents/prog/orbit"
+MakeCommand: /usr/local/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
 # version control
@@ -35,11 +36,11 @@ UpdateVersionOnly:
 
 # CVS options
 # Default is "-d -P -A"
-CVSCommand: CVSCOMMAND-NOTFOUND
-CVSUpdateOptions: -d -A -P
+CVSCommand: 
+CVSUpdateOptions: 
 
 # Subversion options
-SVNCommand: SVNCOMMAND-NOTFOUND
+SVNCommand: 
 SVNOptions: 
 SVNUpdateOptions: 
 
@@ -50,7 +51,7 @@ GITUpdateOptions:
 GITUpdateCustom: 
 
 # Perforce options
-P4Command: P4COMMAND-NOTFOUND
+P4Command: 
 P4Client: 
 P4Options: 
 P4UpdateOptions: 
@@ -69,6 +70,10 @@ CompilerVersion: 9.4.0
 PurifyCommand: 
 ValgrindCommand: 
 ValgrindCommandOptions: 
+DrMemoryCommand: 
+DrMemoryCommandOptions: 
+CudaSanitizerCommand: 
+CudaSanitizerCommandOptions: 
 MemoryCheckType: 
 MemoryCheckSanitizerOptions: 
 MemoryCheckCommand: /usr/bin/valgrind
@@ -78,10 +83,6 @@ MemoryCheckSuppressionFile:
 # Coverage
 CoverageCommand: /usr/bin/gcov
 CoverageExtraFlags: -l
-
-# Cluster commands
-SlurmBatchCommand: SLURM_SBATCH_COMMAND-NOTFOUND
-SlurmRunCommand: SLURM_SRUN_COMMAND-NOTFOUND
 
 # Testing options
 # TimeOut is the amount of time in seconds to wait for processes

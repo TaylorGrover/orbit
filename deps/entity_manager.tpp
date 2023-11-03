@@ -78,10 +78,10 @@ void EntityManager<T>::generateBuffers()
 }
 
 template <typename T>
-void EntityManager<T>::initializeEntities(GLuint N)
+void EntityManager<T>::initializeEntities(GLuint N, std::default_random_engine& randEngine)
 {
     std::uniform_real_distribution<float> radii_dist(1, 5);
-    std::normal_distribution<float> locations_dist(0, 50);
+    std::normal_distribution<float> locations_dist(0, 100);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
         .1, 1.0,
@@ -90,6 +90,6 @@ void EntityManager<T>::initializeEntities(GLuint N)
     );
     GLuint i, j;
     for(i = 0; i < N; i++) {
-        //isLightSource.push_back(light_dist())
+        isLightSource.push_back(light_dist(randEngine) <= LIGHT_FRACTION);
     }
 }

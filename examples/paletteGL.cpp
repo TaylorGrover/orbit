@@ -1,4 +1,5 @@
 #include <iostream>
+#include <input.hpp>
 #include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -18,6 +19,8 @@ const char *FRAG_PATH = "shaders/palette.fs";
 // Global shader and rgb values
 GLuint r = 0, g = 0, b = 0;
 
+Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
+    
 
 void configureWindowHints()
 {
@@ -37,44 +40,14 @@ void configureWindowHints()
 
 void printRGB()
 {
+    std::cout << "\33[2K\r";
     std::cout << "(" << r << ", " << g << ", " << b << ")\r";
     fflush(stdout);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-        switch(key) {
-            case GLFW_KEY_ESCAPE:
-                // Exit program on Escape
-                glfwSetWindowShouldClose(window, GLFW_TRUE);
-                break;
-            case GLFW_KEY_R:
-                r = INC_COLOR(r);
-                printRGB();
-                break;
-            case GLFW_KEY_G:
-                g = INC_COLOR(g);
-                printRGB();
-                break;
-            case GLFW_KEY_B:
-                b = INC_COLOR(b);
-                printRGB();
-                break;
-            case GLFW_KEY_E:
-                r = DEC_COLOR(r);
-                printRGB();
-                break;
-            case GLFW_KEY_F:
-                g = DEC_COLOR(g);
-                printRGB();
-                break;
-            case GLFW_KEY_V:
-                b = DEC_COLOR(b);
-                printRGB();
-                break;
-        }
-    }
+    keyCursorInput.keyCallback(window, key, scancode, action, mods);
 }
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -139,10 +112,11 @@ int main()
     unsigned int EBO;
     glGenBuffers(1, &EBO);
 
+    glBindVertexArray(VAO);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -155,21 +129,23 @@ int main()
     glEnableVertexAttribArray(1);
 
     Shader shader(VERTEX_PATH, FRAG_PATH);
+    shader.compileAndLink();
     shader.use();
     
     // ############### //
     // ## Main Loop ## //
     while(!glfwWindowShouldClose(window)) {
 
-        glClearColor(0.5f, 0.5, 0.5, 1.0f);
+        glClearColor(0.0f, 0.0, 0.0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindVertexArray(VAO);
 
         shader.setFloat("roff", (float) r / 255.0);
         shader.setFloat("goff", (float) g / 255.0);
         shader.setFloat("boff", (float) b / 255.0);
         shader.use();
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);

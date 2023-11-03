@@ -1,5 +1,6 @@
 #ifndef ENTITY_MANAGER
 #define ENTITY_MANAGER
+#include <random>
 #include <type_traits>
 
 /**
@@ -36,7 +37,7 @@ public:
     void bindEBO();
     void bindVBO();
 
-    void initializeEntities(GLuint N);
+    void initializeEntities(GLuint N, std::default_random_engine& randEngine);
     void gravitateSerial();
     void gravitateParallel();
 

@@ -25,7 +25,7 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const fl
     // Constants to govern camera speed
     Camera::vel_magnitude = MIN_VELOCITY;
     Camera::acc_magnitude = 25.0;
-    Camera::jerk_magnitude = 1.0;
+    Camera::jerk_magnitude = 5.0;
     Camera::farClip = farClip;
 }
 
@@ -89,3 +89,7 @@ void Camera::updatePosition(float duration)
     }*/
     //std::cout << position[0] << " " << position[1] << " " << position[2] << std::endl;
 }
+
+glm::vec3 Camera::getBack() { return camera_back; }
+glm::vec3 Camera::getRight() { return camera_right; }
+glm::vec3 Camera::getUp() { return camera_up; }
