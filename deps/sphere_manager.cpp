@@ -1,7 +1,24 @@
 #include <sphere_manager.hpp>
 
-const float DENSITY = .8f;
-const float G = 6.64728;
+template <typename MatType, GLuint N>
+void printMatrix(MatType& matrix)
+{
+    for(GLuint i = 0; i < N; i++) {
+        for(GLuint j = 0; j < N; j++) {
+            std::cout << matrix[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+template <typename VecType, GLuint N>
+void printVec(VecType& vec)
+{
+    for(GLuint i = 0; i < N; i++) {
+        std::cout << vec[i] << " ";
+    }
+    std::cout << std::endl;
+}
 
 std::vector<std::uniform_real_distribution<float>> getColorDistribution(float rlow, float rhigh, float glow, float ghigh, float blow, float bhigh)
 {
@@ -25,6 +42,7 @@ SphereManager::SphereManager(const char* vertexPath, const char* fragmentPath)
     bindVertexArray();
     bindEBO();
     bindVBO();
+    enableAttributes();
     // unbind VAO
     glBindVertexArray(0);
 }
@@ -56,13 +74,6 @@ void SphereManager::bindVBO()
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 }
 
-
-void SphereManager::setupBuffersAndArrays()
-{
-    bindVertexArray();
-}
-
-
 void SphereManager::deleteBuffers()
 {
     glDeleteBuffers(1, &VBO);
@@ -78,13 +89,23 @@ void SphereManager::generateBuffers()
     glGenVertexArrays(1, &VAO);
 }
 
+void SphereManager::enableAttributes()
+{
+    const GLuint stride = 6;
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) 0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void *) (3 * sizeof(float)));
+}
+
 
 void SphereManager::initializeSpheres(GLuint N, std::default_random_engine& randEngine)
 {
     // Initialize the distributions to generate the models
     std::uniform_real_distribution<float> radii_dist(1, 5);
     std::normal_distribution<float> locations_dist(0, 100);
-    std::normal_distribution<float> velocities_dist(0, 5);
+    std::normal_distribution<float> velocities_dist(0, 5 * G);
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
         .1, 1.0,
@@ -96,6 +117,7 @@ void SphereManager::initializeSpheres(GLuint N, std::default_random_engine& rand
         isLightSource.push_back(light_dist(randEngine) <= LIGHT_FRACTION);
         locations.push_back(glm::vec3(0.0));
         velocities.push_back(glm::vec3(0.0));
+        accelerations.push_back(glm::vec3(0.0));
         colors.push_back(glm::vec3(0.0));
         for(j = 0; j < 3; j++) {
             locations[i][j] = locations_dist(randEngine);
@@ -108,15 +130,14 @@ void SphereManager::initializeSpheres(GLuint N, std::default_random_engine& rand
             }
         }
         radii.push_back(isLightSource[i] ? 4 * radii_dist(randEngine) : radii_dist(randEngine));
-        models.push_back(glm::scale(glm::mat4(1.0), glm::vec3(radii[i])));
-        models[i] = glm::translate(models[i], locations[i]);
+        models.push_back(glm::translate(glm::mat4(1.0), locations[i]));
+        models[i] = glm::scale(models[i], glm::vec3(radii[i]));
         normals.push_back(glm::mat3(glm::transpose(glm::inverse(models[i]))));
         masses.push_back(4.0 * pow(radii[i], 3) * M_PI / 3.0 * DENSITY);
         if(isLightSource[i]) {
             lightSourceIndices.push_back(i);
         }
     }
-    //std::cout << lightSourceIndices.size() << std::endl;
     // Shader initialization can only occur once the number of spheres is known
     initializeShader(N);
 }
@@ -132,7 +153,7 @@ void SphereManager::setShaderUniforms(glm::mat4& view, glm::mat4& projection)
     shader.setTransform("view", view);
     shader.setVec3Array("modelColors", colors.data(), colors.size());
     shader.setVec3Array("locations", locations.data(), locations.size());
-    shader.setMat4Array("model", models.data(), models.size());
+    shader.setMat4Array("models", models.data(), models.size());
     shader.setMat3Array("normals", normals.data(), normals.size());
     shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
     shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
@@ -170,6 +191,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 //   it will absorb the other object by default.
                 float newMass = masses[i] + masses[j];
                 float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
+                glm::vec3 newColor = colors[i] + colors[j];
                 // Conserve momentum
                 glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
                 int eraseIndex, keepIndex;
@@ -185,6 +207,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 masses[keepIndex] = newMass;
                 radii[keepIndex] = newRadius;
                 velocities[keepIndex] = newVel;
+                colors[keepIndex] = newColor;
 
                 models.erase(models.begin() + eraseIndex);
                 radii.erase(radii.begin() + eraseIndex);
@@ -211,6 +234,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                     lightSourceIndices.erase(lightSourceIndices.begin() + lightSourceDeleteIndex);
                     lightSourceDeleteIndex = -1;
                 }
+                std::cout << lightSourceIndices.size() << std::endl;
             }
             else {
                 glm::vec3 norm = diff / len;
@@ -226,4 +250,14 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
         models[i] = glm::translate(glm::mat4(1.0), locations[i]);
         models[i] = glm::scale(models[i], glm::vec3(radii[i]));
     }
+}
+
+std::vector<GLuint>& SphereManager::getIndices()
+{
+    return sphere.getIndices();
+}
+
+GLuint SphereManager::getSphereCount()
+{
+    return models.size();
 }

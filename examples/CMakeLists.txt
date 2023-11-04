@@ -21,12 +21,12 @@ endif()
 # Add GLAD
 add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
-add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT} ${ENTITY} ${SPHERE} ${SPHERE_MANAGER})
+add_executable(main_window WIN32 MACOSX_BUNDLE main_window.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT} ${ENTITY} ${SPHERE} ${SPHERE_MANAGER} ${SIM_SETTINGS})
 add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER} ${INPUT})
 add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
 # Target link library for custom app
-target_link_libraries(main_window PRIVATE glad ${CMAKE_DL_LIBS})
+target_link_libraries(main_window PRIVATE glad ${CMAKE_DL_LIBS} Qt5::Widgets)
 target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(perlin PRIVATE glad ${CMAKE_DL_LIBS})
 

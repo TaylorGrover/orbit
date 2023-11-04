@@ -17,17 +17,10 @@
 class Entity
 {
 protected: 
-    GLuint VAO, VBO, EBO;
     std::vector<GLuint> indices;
     
     /// @brief Vertices, colors, normals
     std::vector<float> vertices;
-
-    // Spatial orientation and position
-    glm::mat4 model;
-
-    // Is the model a light source?
-    bool isLight;
 
 public:
     Entity();
@@ -40,20 +33,8 @@ public:
     virtual void createIndices() = 0;
 
 
-    /// Setting up buffer objects
-    void setupBuffersAndArrays();
-    void enableAttributes();
-
     std::vector<GLuint>& getIndices();
     std::vector<float>& getVertices();
-    glm::mat4 getModelMatrix();
-
-    void bindEBO();
-    void bindVBO();
-    void bindVertexArray();
-    void drawElements();
-    void generateBuffers();
-    void deleteBuffers();
 };
 
 

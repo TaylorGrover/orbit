@@ -10,7 +10,10 @@
 #include <type_traits>
 
 // Fraction of entities that are lights
-const float LIGHT_FRACTION = .1;
+const float LIGHT_FRACTION = .05;
+const float DENSITY = .8f;
+const float G = 6.64728e-1;
+
 
 /**
  * To enable instancing, this contains all the relevant buffers, the 
@@ -41,11 +44,11 @@ class SphereManager
 public:
     SphereManager(const char* vertexPath, const char* fragmentPath);
     ~SphereManager();
-    void setupBuffersAndArrays();
     void generateBuffers();
     void bindVertexArray();
     void bindEBO();
     void bindVBO();
+    void enableAttributes();
     void setShaderUniforms(glm::mat4& view, glm::mat4& projection);
     void useShader();
 
@@ -53,9 +56,8 @@ public:
     void gravitateSerialAbsorbCollisions(float duration);
     void gravitateParallel();
 
-    std::vector<glm::mat4>* getModels();
-    std::vector<glm::mat3>* getNormals();
-    std::vector<glm::vec3>* getColors();
+    std::vector<GLuint>& getIndices();
+    GLuint getSphereCount();
     
 };
 

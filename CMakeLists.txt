@@ -58,8 +58,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${Orbit_SOURCE_DIR}/CMake/modules")
 
 find_package(Threads REQUIRED)
-#find_package(Qt5 COMPONENTS Widgets REQUIRED)
-#find_package(Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core REQUIRED)
 
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
 
@@ -129,6 +129,8 @@ set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
            "${Orbit_SOURCE_DIR}/deps/getopt.c")
 set(ENTITY "${Orbit_SOURCE_DIR}/deps/entity.hpp"
            "${Orbit_SOURCE_DIR}/deps/entity.cpp")
+set(SIM_SETTINGS "${Orbit_SOURCE_DIR}/deps/SimSettings.h"
+                 "${Orbit_SOURCE_DIR}/deps/SimSettings.cpp")
 set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/sphere_manager.hpp"
                    "${Orbit_SOURCE_DIR}/deps/sphere_manager.cpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"

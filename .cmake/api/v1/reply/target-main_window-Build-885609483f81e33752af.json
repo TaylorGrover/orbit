@@ -14,6 +14,8 @@
 			"target_link_libraries",
 			"set_property",
 			"find_package",
+			"set_target_properties",
+			"_populate_Widgets_target_properties",
 			"add_compile_options",
 			"target_compile_options",
 			"include_directories"
@@ -23,7 +25,9 @@
 			"examples/CMakeLists.txt",
 			"/usr/local/share/cmake-3.28/Modules/FindThreads.cmake",
 			"CMakeLists.txt",
-			"src/CMakeLists.txt"
+			"src/CMakeLists.txt",
+			"/usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake",
+			"/usr/lib/x86_64-linux-gnu/cmake/Qt5/Qt5Config.cmake"
 		],
 		"nodes" : 
 		[
@@ -71,19 +75,51 @@
 				"parent" : 7
 			},
 			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 61,
+				"parent" : 3
+			},
+			{
+				"file" : 5,
+				"parent" : 9
+			},
+			{
+				"command" : 3,
+				"file" : 5,
+				"line" : 28,
+				"parent" : 10
+			},
+			{
+				"file" : 4,
+				"parent" : 11
+			},
+			{
+				"command" : 5,
+				"file" : 4,
+				"line" : 162,
+				"parent" : 12
+			},
+			{
 				"command" : 4,
+				"file" : 4,
+				"line" : 44,
+				"parent" : 13
+			},
+			{
+				"command" : 6,
 				"file" : 0,
 				"line" : 4,
 				"parent" : 0
 			},
 			{
-				"command" : 5,
+				"command" : 7,
 				"file" : 0,
 				"line" : 33,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 8,
 				"file" : 2,
 				"line" : 28,
 				"parent" : 3
@@ -96,39 +132,79 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"backtrace" : 9,
+					"backtrace" : 15,
 					"fragment" : "-Wall"
 				},
 				{
-					"backtrace" : 9,
+					"backtrace" : 15,
 					"fragment" : "-g"
 				},
 				{
-					"backtrace" : 9,
+					"backtrace" : 15,
 					"fragment" : "-fPIC"
 				},
 				{
-					"backtrace" : 9,
+					"backtrace" : 15,
 					"fragment" : "-DQT_NO_VERSION_TAGGING"
 				},
 				{
-					"backtrace" : 10,
+					"backtrace" : 16,
 					"fragment" : "-std=c++2a"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "QT_CORE_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "QT_GUI_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "QT_NO_DEBUG"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "QT_WIDGETS_LIB"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 11,
+					"backtrace" : 17,
 					"path" : "/home/jonaz/Documents/prog/orbit/deps"
 				},
 				{
-					"backtrace" : 11,
+					"backtrace" : 17,
 					"path" : "/home/jonaz/Documents/prog/orbit/include"
 				},
 				{
-					"backtrace" : 11,
+					"backtrace" : 17,
+					"isSystem" : true,
 					"path" : "/usr/include/x86_64-linux-gnu/qt5"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/include/x86_64-linux-gnu/qt5/QtWidgets"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/include/x86_64-linux-gnu/qt5/QtGui"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/include/x86_64-linux-gnu/qt5/QtCore"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"
 				}
 			],
 			"language" : "CXX",
@@ -140,7 +216,8 @@
 				7,
 				9,
 				10,
-				12
+				12,
+				14
 			]
 		}
 	],
@@ -184,6 +261,11 @@
 				"role" : "libraries"
 			},
 			{
+				"backtrace" : 2,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.12.8",
+				"role" : "libraries"
+			},
+			{
 				"backtrace" : 1,
 				"fragment" : "../src/libglfw3.a",
 				"role" : "libraries"
@@ -205,6 +287,16 @@
 			},
 			{
 				"fragment" : "-lm",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 14,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.12.8",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 14,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8",
 				"role" : "libraries"
 			}
 		],
@@ -229,7 +321,8 @@
 				7,
 				9,
 				10,
-				12
+				12,
+				14
 			]
 		},
 		{
@@ -241,7 +334,8 @@
 				5,
 				6,
 				8,
-				11
+				11,
+				13
 			]
 		}
 	],
@@ -317,6 +411,17 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "deps/sphere_manager.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "deps/SimSettings.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "deps/SimSettings.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

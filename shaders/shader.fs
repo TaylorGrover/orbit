@@ -19,7 +19,6 @@ uniform int lightSourceIndices[1] = {0};
 uniform int remainingLights = NUM_ENTITIES;
 
 uniform vec3 modelColors[NUM_ENTITIES];
-uniform mat4 model[NUM_ENTITIES]; // Is this the same model uniform in vs?
 uniform vec3 locations[NUM_ENTITIES];
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
@@ -61,7 +60,7 @@ void main()
 {
     // ambient light strength
     float ambientStrength = .1;
-    vec3 ambientColor = vec3(.53, 0.843, 1.0);
+    vec3 ambientColor = vec3(.83, 0.843, 0.5);
     vec3 ambient = ambientStrength * ambientColor;
 
     // attenuation coefficient
