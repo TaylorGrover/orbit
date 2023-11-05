@@ -18,7 +18,7 @@
 #include <qt5/QtWidgets/QVBoxLayout>
 #include <qt5/QtCore/QObject>
 #include <shader.h>
-#include <SimSettings.h>
+#include <SettingsDialog.h>
 #include <string.h>
 #include <random>
 

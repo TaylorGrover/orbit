@@ -132,8 +132,8 @@ set(GETOPT "${Orbit_SOURCE_DIR}/deps/getopt.h"
            "${Orbit_SOURCE_DIR}/deps/getopt.c")
 set(ENTITY "${Orbit_SOURCE_DIR}/deps/entity.hpp"
            "${Orbit_SOURCE_DIR}/deps/entity.cpp")
-set(SIM_SETTINGS "${Orbit_SOURCE_DIR}/deps/SimSettings.h"
-                 "${Orbit_SOURCE_DIR}/deps/SimSettings.cpp")
+set(SIM_SETTINGS "${Orbit_SOURCE_DIR}/deps/SettingsDialog.h"
+                 "${Orbit_SOURCE_DIR}/deps/SettingsDialog.cpp")
 set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/sphere_manager.hpp"
                    "${Orbit_SOURCE_DIR}/deps/sphere_manager.cpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"

@@ -30,6 +30,9 @@ target_link_libraries(gravity PRIVATE glad ${CMAKE_DL_LIBS} Qt5::Widgets)
 target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(perlin PRIVATE glad ${CMAKE_DL_LIBS})
 
+# Automoc for Qt applications
+set_property(TARGET gravity PROPERTY AUTOMOC ON)
+
 target_compile_options(gravity PRIVATE "-Wall" "-g" "-std=c++2a")
 target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++2a")
 target_compile_options(perlin PRIVATE "-Wall" "-g" "-std=c++2a")
