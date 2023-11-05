@@ -14,6 +14,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" Orbit_STANDALONE)
 
+# Set use g++-10
+# set(CMAKE_CXX_COMPILER /usr/bin/g++-10)
+
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(Orbit_BUILD_TESTS "Build the GLFW test programs" ${Orbit_STANDALONE})
 option(Orbit_BUILD_EXAMPLES "Build the GLFW examples" ${Orbit_STANDALONE})
@@ -135,6 +138,8 @@ set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/sphere_manager.hpp"
                    "${Orbit_SOURCE_DIR}/deps/sphere_manager.cpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
           "${Orbit_SOURCE_DIR}/deps/input.cpp")
+set(PARAMETER_MANAGER "${Orbit_SOURCE_DIR}/deps/parametermanager.h"
+                      "${Orbit_SOURCE_DIR}/deps/parametermanager.cpp")
 set(SHADER "${Orbit_SOURCE_DIR}/deps/shader.h"
            "${Orbit_SOURCE_DIR}/deps/shader.cpp")
 set(SPHERE "${Orbit_SOURCE_DIR}/deps/sphere.cpp"

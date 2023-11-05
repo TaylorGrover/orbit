@@ -2,39 +2,76 @@
 
 SettingsDialog::SettingsDialog()
 {
-    resize(800, 600);
-    auto* layout = new QVBoxLayout(this);
-    layout->setSpacing(0);
-    auto* gravConstantSpin = new QDoubleSpinBox(this);
-    gravConstantSpin->setRange(0, 100); // Set appropriate range
-    gravConstantSpin->setValue(6.67430); // Example default value
+    QFormLayout* settingsLayout = new QFormLayout(this);
+    gravConstantSpin = new QDoubleSpinBox;
+    gravConstantSpin->setValue(6.674f);
+    gravConstantSpin->setRange(-100, 100);
 
-    auto* initialVelocitySpin = new QDoubleSpinBox(this);
-    initialVelocitySpin->setRange(0, 100); // Set appropriate range
+    // Standard deviation of normally distributed locations
+    initialLocationSpin = new QDoubleSpinBox;
+    initialLocationSpin->setValue(200);
+    initialLocationSpin->setRange(0, 1000);
 
-    auto* randomSeedSpin = new QSpinBox(this);
-    randomSeedSpin->setRange(0, INT_MAX); // Set appropriate range
+    // "                                        " velocities
+    initialVelocitySpin = new QDoubleSpinBox;
+    initialVelocitySpin->setValue(2.5f);
+    initialVelocitySpin->setRange(0, 100);
 
-    auto* colorButton = new QPushButton("Choose Color", this);
+    // Color picker button
 
-    layout->addWidget(new QLabel("Gravitational Constant:"));
-    layout->addWidget(gravConstantSpin);
-    layout->addWidget(new QLabel("Average Initial Velocity:"));
-    layout->addWidget(initialVelocitySpin);
-    layout->addWidget(new QLabel("Random Seed:"));
-    layout->addWidget(randomSeedSpin);
-    layout->addWidget(colorButton);
+    // Start and Close buttons
+    QPushButton* closeButton = new QPushButton;
+    closeButton->setText("Close");
+    QPushButton* startButton = new QPushButton;
+    startButton->setText("Start Simulation");
+    connect(closeButton, &QPushButton::clicked, this, &SettingsDialog::reject);
+    connect(startButton, &QPushButton::clicked, this, &SettingsDialog::accept);
+    QWidget* startCloseWidget = new QWidget;
+    QHBoxLayout* startCloseLayout = new QHBoxLayout(startCloseWidget);
+    startCloseLayout->addWidget(closeButton);
+    startCloseLayout->addWidget(startButton);
 
-    connect(colorButton, &QPushButton::clicked, this, []() {
-        QColorDialog::getColor(); // Add handling for color selection
-    });
+    settingsLayout->addRow("Gravitational constant: ", gravConstantSpin);
+    settingsLayout->addRow("Standard dev. of initial |distance|: ", initialLocationSpin);
+    settingsLayout->addRow("Standard dev. of initial |velocity|: ", initialVelocitySpin);
+    settingsLayout->addRow("", startCloseWidget);
 
-    // Add your other parameters here
+    QPushButton* colorButton = new QPushButton;
+    connect(colorButton, &QPushButton::clicked, this, this->getColorPalette);
+    //settingsLayout->addRow("Color palette: ", new QPush);
 
-    setLayout(layout);
+    setLayout(settingsLayout);
+}
+
+void SettingsDialog::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Escape) {
+        event->ignore();
+    } else {
+        QDialog::keyPressEvent(event);
+    }
 }
 
 float SettingsDialog::getGravitationalConstant()
 {
     return gravConstantSpin->value();
+}
+
+template <typename SpinBox, typename numType>
+SpinBox* SettingsDialog::getSpin(QVBoxLayout* vboxLayout, std::string labelText, numType leftRange, numType rightRange, numType initValue)
+{
+    SpinBox* spin = new SpinBox;
+    spin->setValue(initValue);
+    spin->setRange(leftRange, rightRange);
+    auto* widget = new QWidget;
+    auto* hBox = new QHBoxLayout(widget);
+    hBox->addWidget(new QLabel(labelText.c_str()));
+    hBox->addWidget(spin);
+    vboxLayout->addWidget(widget);
+    return spin;
+}
+
+void SettingsDialog::getColorPalette()
+{
+
 }

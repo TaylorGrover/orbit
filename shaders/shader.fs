@@ -58,15 +58,15 @@ float rand(float a, float b, uint m)
 
 void main()
 {
-    // ambient light strength
-    float ambientStrength = .1;
-    vec3 ambientColor = vec3(.83, 0.843, 0.5);
-    vec3 ambient = ambientStrength * ambientColor;
-
     // attenuation coefficient
     float k = 0.0001; 
     vec3 diffuse = vec3(0.0);
     vec3 ourColor = modelColors[instanceID];
+
+    // ambient light strength
+    float ambientStrength = .1;
+    vec3 ambientColor = vec3(.83, 0.843, 0.5);
+    vec3 ambient = ambientStrength * ambientColor;
 
     // Combine the texture with the positional color scheme
 
@@ -78,7 +78,7 @@ void main()
             difference = loc - ourPos;
             float len = length(difference);
             float preDiffuse = max(dot(normalize(difference), ourNorm), 0.0);
-            diffuse += 1 / (1 + k * len * len) * preDiffuse * ambientColor;
+            diffuse += 1 / (1 + k * len * len) * preDiffuse * ambientColor * modelColors[lightSourceIndices[i]];
         }
         FragColor = vec4(ourColor * (ambient + diffuse), 1.0f);
     } 

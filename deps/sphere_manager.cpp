@@ -191,7 +191,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 //   it will absorb the other object by default.
                 float newMass = masses[i] + masses[j];
                 float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
-                glm::vec3 newColor = colors[i] + colors[j];
+                //glm::vec3 newColor = colorScaler * (1 / masses[i] * colors[j] + 1 / masses[j] * colors[i]);
                 // Conserve momentum
                 glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
                 int eraseIndex, keepIndex;
@@ -207,7 +207,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 masses[keepIndex] = newMass;
                 radii[keepIndex] = newRadius;
                 velocities[keepIndex] = newVel;
-                colors[keepIndex] = newColor;
+                //colors[keepIndex] = newColor;
 
                 models.erase(models.begin() + eraseIndex);
                 radii.erase(radii.begin() + eraseIndex);
@@ -234,7 +234,6 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                     lightSourceIndices.erase(lightSourceIndices.begin() + lightSourceDeleteIndex);
                     lightSourceDeleteIndex = -1;
                 }
-                std::cout << lightSourceIndices.size() << std::endl;
             }
             else {
                 glm::vec3 norm = diff / len;
