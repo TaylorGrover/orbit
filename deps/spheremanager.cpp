@@ -1,4 +1,4 @@
-#include <sphere_manager.hpp>
+#include <spheremanager.hpp>
 
 template <typename MatType, GLuint N>
 void printMatrix(MatType& matrix)
@@ -100,21 +100,24 @@ void SphereManager::enableAttributes()
 }
 
 
-void SphereManager::initializeSpheres(GLuint N, std::default_random_engine& randEngine)
+void SphereManager::initializeSpheres(std::default_random_engine& randEngine, ParameterManager& paramManager)
 {
+    // Number of spheres
+    GLuint N = paramManager.getSphereCount();
+
     // Initialize the distributions to generate the models
-    std::uniform_real_distribution<float> radii_dist(1, 5);
-    std::normal_distribution<float> locations_dist(0, 100);
-    std::normal_distribution<float> velocities_dist(0, 5 * G);
+    std::uniform_real_distribution<float> radii_dist(paramManager.getRadiiLowerBound(), paramManager.getRadiiUpperBound());
+    std::normal_distribution<float> locations_dist(0, paramManager.getLocationSD());
+    std::normal_distribution<float> velocities_dist(0, paramManager.getVelocitySD());
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
-        .1, 1.0,
-        .7, .9,
-        .8, .9
+        0.2, 1.0,
+        0.7, 0.9,
+        0.8, 1.0
     );
     GLuint i, j;
     for(i = 0; i < N; i++) {
-        isLightSource.push_back(light_dist(randEngine) <= LIGHT_FRACTION);
+        isLightSource.push_back(light_dist(randEngine) <= paramManager.getLightFraction());
         locations.push_back(glm::vec3(0.0));
         velocities.push_back(glm::vec3(0.0));
         accelerations.push_back(glm::vec3(0.0));

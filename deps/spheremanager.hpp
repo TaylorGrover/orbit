@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <parametermanager.h>
 #include <random>
 #include <shader.h>
 #include <type_traits>
@@ -26,7 +27,7 @@ class SphereManager
     GLuint VAO, VBO, EBO;
     Sphere sphere;
     Shader shader;
-    
+
     std::vector<glm::mat4> models;
     std::vector<glm::mat3> normals;
     std::vector<glm::vec3> colors;
@@ -52,7 +53,7 @@ public:
     void setShaderUniforms(glm::mat4& view, glm::mat4& projection);
     void useShader();
 
-    void initializeSpheres(GLuint N, std::default_random_engine& randEngine);
+    void initializeSpheres(std::default_random_engine& randEngine, ParameterManager& paramManager);
     void gravitateSerialAbsorbCollisions(float duration);
     void gravitateParallel();
 

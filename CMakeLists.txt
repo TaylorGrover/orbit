@@ -134,8 +134,8 @@ set(ENTITY "${Orbit_SOURCE_DIR}/deps/entity.hpp"
            "${Orbit_SOURCE_DIR}/deps/entity.cpp")
 set(SIM_SETTINGS "${Orbit_SOURCE_DIR}/deps/SettingsDialog.h"
                  "${Orbit_SOURCE_DIR}/deps/SettingsDialog.cpp")
-set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/sphere_manager.hpp"
-                   "${Orbit_SOURCE_DIR}/deps/sphere_manager.cpp")
+set(SPHERE_MANAGER "${Orbit_SOURCE_DIR}/deps/spheremanager.hpp"
+                   "${Orbit_SOURCE_DIR}/deps/spheremanager.cpp")
 set(INPUT "${Orbit_SOURCE_DIR}/deps/input.hpp"
           "${Orbit_SOURCE_DIR}/deps/input.cpp")
 set(PARAMETER_MANAGER "${Orbit_SOURCE_DIR}/deps/parametermanager.h"

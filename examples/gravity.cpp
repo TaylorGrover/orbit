@@ -3,7 +3,7 @@
 #include <cmath>
 #include <camera.hpp>
 #include <entity.hpp>
-#include <sphere_manager.hpp>
+#include <spheremanager.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -30,11 +30,7 @@
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
-#ifndef DEBUG_ON
 const GLuint NUM_SPHERES = 1 << 8;
-#else
-const GLuint NUM_SPHERES = 2;
-#endif
 
 const char *WINDOW_TITLE = "Gravity";
 const char *VERTEX_PATH = "shaders/shader.vs";
@@ -61,12 +57,6 @@ Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
 
 // Camera rotation globals
 Camera camera(keyCursorInput, camera_position, camera_orientation, FAR);
-
-    
-// Normal distribution
-//const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-const unsigned seed = 11;
-std::default_random_engine rand_engine(seed);
 
 void configureWindowHints()
 {
@@ -108,15 +98,16 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 int main(int argc, char* argv[])
 {
     // Parameter management
-    ParameterManager& manager1 = ParameterManager::getInstance();
+    ParameterManager& paramManager = ParameterManager::getInstance();
     // Set up QApplication
     QApplication app(argc, argv);
-    SettingsDialog settingsDialog;
+    SettingsDialog settingsDialog(paramManager);
     settingsDialog.exec();
 
     if(settingsDialog.result() == QDialog::Rejected) {
         return 0;
     }
+    //paramManager.setParametersFromDialog(settingsDialog);
 
     if(!glfwInit()) {
         std::cerr << "Unable to initialize GLFW\n";
@@ -164,7 +155,10 @@ int main(int argc, char* argv[])
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     SphereManager sphereManager(VERTEX_PATH, FRAG_PATH);
-    sphereManager.initializeSpheres(NUM_SPHERES, rand_engine);
+
+    //const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rand_engine(paramManager.getRandSeed());
+    sphereManager.initializeSpheres(rand_engine, paramManager);
 
     // Camera
     glm::mat4 view(1.0); // The view (camera)

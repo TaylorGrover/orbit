@@ -8,7 +8,7 @@ in vec3 ourNorm;
 in flat int instanceID;
 
 uniform sampler2D ourTexture;
-uniform bool isLightSource[NUM_ENTITIES]; 
+uniform bool isLightSource[NUM_ENTITIES];
 #if NUM_LIGHT_SOURCES > 0
 uniform int lightSourceIndices[NUM_LIGHT_SOURCES];
 #else 
@@ -65,7 +65,7 @@ void main()
 
     // ambient light strength
     float ambientStrength = .1;
-    vec3 ambientColor = vec3(.83, 0.843, 0.5);
+    vec3 ambientColor = vec3(.89, 0.893, 0.82);
     vec3 ambient = ambientStrength * ambientColor;
 
     // Combine the texture with the positional color scheme
