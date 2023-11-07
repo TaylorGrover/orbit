@@ -39,6 +39,7 @@ public:
     void setFloat(const std::string &name, float value) const;
     void setTransform(const std::string &name, const glm::mat4& trans);
     void setVec3Array(const std::string& name, const glm::vec3 vec[], int count);
+    void setVec3(const std::string& name, const glm::vec3& vec);
     void setMat4Array(const std::string& name, const glm::mat4 mat[], int count);
     void setMat3Array(const std::string& name, const glm::mat3 mat[], int count);
     void setIntArray(const std::string& name, const GLint array[], int count);

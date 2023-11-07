@@ -1,5 +1,6 @@
 #ifndef PARAMETERMANAGER_H
 #define PARAMETERMANAGER_H
+#include <iostream>
 #include <map>
 #include <memory>
 #include <qt5/QtWidgets/QWidget>
@@ -14,6 +15,9 @@ class ParameterManager
 
     // Gravitational constant
     float G;
+
+    // Density of spheres
+    float density;
 
     // Standard deviations for normally distribution locations and velocity
     //  centered at 0
@@ -41,10 +45,15 @@ public:
     void setLocationSD(float);
     void setRandSeed(int);
     void setSphereCount(int);
+    void setSphereDensity(float);
     void setLightFraction(float);
     void setRadiiLower(float);
     void setRadiiUpper(float);
+    void setDensity(float);
     void setAmbientPalette(QColor);
+
+    // Prints all parameters
+    void printParameters() const;
 
     float getGravitationalConstant() const;
     float getVelocitySD() const;
@@ -52,6 +61,8 @@ public:
     float getLightFraction() const;
     float getRadiiLowerBound() const;
     float getRadiiUpperBound() const;
+    float getSphereDensity() const;
+    float getDensity() const;
     int   getRandSeed() const;
     int   getSphereCount() const;
     QColor getAmbientPalette() const;

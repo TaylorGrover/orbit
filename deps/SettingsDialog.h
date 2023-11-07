@@ -1,10 +1,9 @@
 #ifndef SIMSETTINGS_H
 #define SIMSETTINGS_H
-#include <iostream>
-#include <map>
 #include <parametermanager.h>
-#include <qt5/QtCore/QString>
 #include <qt5/QtCore/QObject>
+#include <qt5/QtCore/QSettings>
+#include <qt5/QtCore/QString>
 #include <qt5/QtGui/QKeyEvent>
 #include <qt5/QtWidgets/QColorDialog>
 #include <qt5/QtWidgets/QDialog>
@@ -22,6 +21,7 @@ class SettingsDialog : public QDialog {
 
 private:
     QDoubleSpinBox *gravConstantSpin;
+    QDoubleSpinBox *densitySpin;
     QDoubleSpinBox *initialVelocitySpin;
     QDoubleSpinBox *initialLocationSpin;
     QDoubleSpinBox *radiiLower, *radiiUpper;
@@ -37,11 +37,16 @@ private:
     template<typename SpinBox, typename numType>
     SpinBox* getSpin(QVBoxLayout*, std::string labelText, numType leftRange, numType rightRange, numType initValue);
 
+    // Update color select button
+    void updateColorSelect();
+
 public slots:
     void selectColorPalette();
     void updateRadiiUpper();
     void updateRadiiLower();
     void setParameters();
+    void writeSettings();
+    void readSettings();
 public:
     // Constructor
     SettingsDialog(ParameterManager& paramManager);

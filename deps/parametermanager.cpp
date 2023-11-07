@@ -1,7 +1,7 @@
 #include "parametermanager.h"
 
 // Private constructor
-ParameterManager::ParameterManager() : G(0.0)
+ParameterManager::ParameterManager()
 {
 
 }
@@ -56,6 +56,11 @@ void ParameterManager::setSphereCount(int count)
     sphereCount = count;
 }
 
+void ParameterManager::setDensity(float density)
+{
+    ParameterManager::density = density;
+}
+
 // Getters
 float ParameterManager::getGravitationalConstant() const {
     return G;
@@ -99,4 +104,21 @@ float ParameterManager::getRadiiLowerBound() const
 float ParameterManager::getRadiiUpperBound() const
 {
     return radiiUpper;
+}
+
+float ParameterManager::getDensity() const
+{
+    return density;
+}
+
+void ParameterManager::printParameters() const
+{
+    std::cout << "G: " << G << std::endl;
+    std::cout << "velSD: " << velocitySD << std::endl;
+    std::cout << "locSD: " << locationSD << std::endl;
+    std::cout << "radLower: " << radiiLower << std::endl;
+    std::cout << "radUpper: " << radiiUpper << std::endl;
+    std::cout << "lightFraction: " << lightFraction << std::endl;
+    std::cout << "randSeed: " << randSeed << std::endl;
+    std::cout << "sphereCount: " << sphereCount << std::endl;
 }

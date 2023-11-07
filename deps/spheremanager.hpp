@@ -6,15 +6,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <parametermanager.h>
+#include <qt5/QtCore/QObject>
 #include <random>
 #include <shader.h>
 #include <type_traits>
-
-// Fraction of entities that are lights
-const float LIGHT_FRACTION = .05;
-const float DENSITY = .8f;
-const float G = 6.64728e-1;
-
 
 /**
  * To enable instancing, this contains all the relevant buffers, the 
@@ -27,6 +22,10 @@ class SphereManager
     GLuint VAO, VBO, EBO;
     Sphere sphere;
     Shader shader;
+
+    float G; // gravitational constant
+    float density;
+    glm::vec3 ambientColor;
 
     std::vector<glm::mat4> models;
     std::vector<glm::mat3> normals;

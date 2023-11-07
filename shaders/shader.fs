@@ -15,6 +15,8 @@ uniform int lightSourceIndices[NUM_LIGHT_SOURCES];
 uniform int lightSourceIndices[1] = {0};
 #endif
 
+uniform vec3 ambientColor = vec3(1.0);
+
 // Number of remaining lights that have not been consumed
 uniform int remainingLights = NUM_ENTITIES;
 
@@ -65,7 +67,6 @@ void main()
 
     // ambient light strength
     float ambientStrength = .1;
-    vec3 ambientColor = vec3(.89, 0.893, 0.82);
     vec3 ambient = ambientStrength * ambientColor;
 
     // Combine the texture with the positional color scheme

@@ -102,8 +102,19 @@ void SphereManager::enableAttributes()
 
 void SphereManager::initializeSpheres(std::default_random_engine& randEngine, ParameterManager& paramManager)
 {
-    // Number of spheres
+    // Constant; num spheres, G, density
     GLuint N = paramManager.getSphereCount();
+    G = paramManager.getGravitationalConstant();
+    density = paramManager.getDensity();
+
+    QColor ambientColorQ = paramManager.getAmbientPalette();
+    int r, g, b, alpha;
+    ambientColorQ.getRgb(&r, &g, &b, &alpha);
+    float rf = (float) r / 255.0;
+    float gf = (float) g / 255.0;
+    float bf = (float) b / 255.0;
+    std::cout << rf << " " << gf << " " << bf << std::endl;
+    ambientColor = glm::vec3(rf, gf, bf);
 
     // Initialize the distributions to generate the models
     std::uniform_real_distribution<float> radii_dist(paramManager.getRadiiLowerBound(), paramManager.getRadiiUpperBound());
@@ -112,7 +123,7 @@ void SphereManager::initializeSpheres(std::default_random_engine& randEngine, Pa
     std::uniform_real_distribution<float> light_dist(0, 1);
     std::vector<std::uniform_real_distribution<float>> color_dist = getColorDistribution(
         0.2, 1.0,
-        0.7, 0.9,
+        0.6, 0.9,
         0.8, 1.0
     );
     GLuint i, j;
@@ -136,7 +147,7 @@ void SphereManager::initializeSpheres(std::default_random_engine& randEngine, Pa
         models.push_back(glm::translate(glm::mat4(1.0), locations[i]));
         models[i] = glm::scale(models[i], glm::vec3(radii[i]));
         normals.push_back(glm::mat3(glm::transpose(glm::inverse(models[i]))));
-        masses.push_back(4.0 * pow(radii[i], 3) * M_PI / 3.0 * DENSITY);
+        masses.push_back(4.0 * pow(radii[i], 3) * M_PI / 3.0 * density);
         if(isLightSource[i]) {
             lightSourceIndices.push_back(i);
         }
@@ -161,6 +172,7 @@ void SphereManager::setShaderUniforms(glm::mat4& view, glm::mat4& projection)
     shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
     shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
     shader.setInt("remainingLights", (int) lightSourceIndices.size());
+    shader.setVec3("ambientColor", ambientColor);
 }
 
 void SphereManager::initializeShader(GLuint N)
@@ -193,7 +205,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 // One sphere absorbs another. If it's a lightsource,
                 //   it will absorb the other object by default.
                 float newMass = masses[i] + masses[j];
-                float newRadius = pow(3.0f * newMass / (4 * M_PI * DENSITY), 1.0 / 3.0);
+                float newRadius = pow(3.0f * newMass / (4 * M_PI * density), 1.0 / 3.0);
                 //glm::vec3 newColor = colorScaler * (1 / masses[i] * colors[j] + 1 / masses[j] * colors[i]);
                 // Conserve momentum
                 glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;

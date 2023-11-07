@@ -2,8 +2,10 @@
 
 SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(paramManager)
 {
-    // Initialize color palette
-
+    // Initialize colorPalette
+    colorPalette.setRed(255);
+    colorPalette.setGreen(255);
+    colorPalette.setBlue(255);
     QGridLayout* settingsLayout = new QGridLayout(this);
 
     QWidget* paramWidget = new QWidget;
@@ -28,8 +30,12 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     startCloseLayout->addWidget(startButton);
 
     gravConstantSpin = new QDoubleSpinBox;
-    gravConstantSpin->setRange(-100, 100);
+    gravConstantSpin->setRange(-10000, 10000);
     gravConstantSpin->setValue(6.674f);
+
+    densitySpin = new QDoubleSpinBox;
+    densitySpin->setRange(-100, 100);
+    densitySpin->setValue(0.8);
 
     // Standard deviation of normally distributed locations
     initialLocationSpin = new QDoubleSpinBox;
@@ -73,6 +79,7 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
 
     paramLayout->addRow("Number of spheres: ", countSpin);
     paramLayout->addRow("Gravitational constant (G): ", gravConstantSpin);
+    paramLayout->addRow("Sphere density: ", densitySpin);
     paramLayout->addRow("Standard dev. of initial |distance|: ", initialLocationSpin);
     paramLayout->addRow("Standard dev. of initial |velocity|: ", initialVelocitySpin);
     paramLayout->addRow("Uniform distribution of radii", radiiWidget);
@@ -86,6 +93,7 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     settingsLayout->addWidget(lowerWidget, 1, 0);
 
     setLayout(settingsLayout);
+    readSettings();
 }
 
 /*void SettingsDialog::keyPressEvent(QKeyEvent *event)
@@ -116,13 +124,18 @@ void SettingsDialog::selectColorPalette()
     QColor color = QColorDialog::getColor();
     if (color.isValid()) {
         colorPalette = color;
-        QString s("background: #"
-          + QString(color.red() < 16? "0" : "") + QString::number(color.red(),16)
-          + QString(color.green() < 16? "0" : "") + QString::number(color.green(),16)
-          + QString(color.blue() < 16? "0" : "") + QString::number(color.blue(),16) + ";");
-        colorSelectButton->setStyleSheet(s);
-        colorSelectButton->update();
+        updateColorSelect();
     }
+}
+
+void SettingsDialog::updateColorSelect()
+{
+    QString s("background: #"
+      + QString(colorPalette.red() < 16? "0" : "") + QString::number(colorPalette.red(),16)
+      + QString(colorPalette.green() < 16? "0" : "") + QString::number(colorPalette.green(),16)
+      + QString(colorPalette.blue() < 16? "0" : "") + QString::number(colorPalette.blue(),16) + ";");
+    colorSelectButton->setStyleSheet(s);
+    colorSelectButton->update();
 }
 
 /**
@@ -153,6 +166,7 @@ void SettingsDialog::updateRadiiLower()
 void SettingsDialog::setParameters()
 {
     paramManager.setGravitationalConstant(gravConstantSpin->value());
+    paramManager.setDensity(densitySpin->value());
     paramManager.setLocationSD(initialLocationSpin->value());
     paramManager.setVelocitySD(initialVelocitySpin->value());
     paramManager.setLightFraction(lightFractionSpin->value());
@@ -161,5 +175,49 @@ void SettingsDialog::setParameters()
     paramManager.setRandSeed(randomSeedSpin->value());
     paramManager.setAmbientPalette(colorPalette);
     paramManager.setSphereCount(countSpin->value());
+    writeSettings();
+    paramManager.printParameters();
     this->accept();
+}
+
+/**
+ * Can only be called after the widgets have been initialized
+ * @brief readSettings
+ */
+void SettingsDialog::readSettings()
+{
+    QSettings settings("Organization", "Gravity");
+
+    settings.beginGroup("SettingsDialog");
+    gravConstantSpin->setValue(settings.value("gravitationalConstant", 6.674).toDouble());
+    densitySpin->setValue(settings.value("densitySpin", 0.8).toDouble());
+    initialVelocitySpin->setValue(settings.value("velocitySD", 2.5).toDouble());
+    initialLocationSpin->setValue(settings.value("locationSD", 200).toDouble());
+    radiiLower->setValue(settings.value("radiiLower", 1).toDouble());
+    radiiUpper->setValue(settings.value("radiiUpper", 5).toDouble());
+    lightFractionSpin->setValue(settings.value("lightFraction", .1).toDouble());
+    randomSeedSpin->setValue(settings.value("randomSeed", 23).toInt());
+    countSpin->setValue(settings.value("sphereCount", 16).toInt());
+    colorPalette = settings.value("ambientColor", QColor(255, 255, 255)).value<QColor>();
+    std::cout << colorPalette.red() << " " << colorPalette.green() << " " << colorPalette.blue() << std::endl;
+    settings.endGroup();
+    updateColorSelect();
+}
+
+void SettingsDialog::writeSettings()
+{
+    QSettings settings("Organization", "Gravity");
+
+    settings.beginGroup("SettingsDialog");
+    settings.setValue("gravitationalConstant", gravConstantSpin->value());
+    settings.setValue("sphereDensity", densitySpin->value());
+    settings.setValue("velocitySD", initialVelocitySpin->value());
+    settings.setValue("locationSD", initialLocationSpin->value());
+    settings.setValue("radiiLower", radiiLower->value());
+    settings.setValue("radiiUpper", radiiUpper->value());
+    settings.setValue("lightFraction", lightFractionSpin->value());
+    settings.setValue("randomSeed", randomSeedSpin->value());
+    settings.setValue("sphereCount", countSpin->value());
+    settings.setValue("ambientColor", colorPalette);
+    settings.endGroup();
 }

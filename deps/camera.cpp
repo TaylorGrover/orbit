@@ -25,7 +25,7 @@ Camera::Camera(Input& input, glm::vec3 position, glm::mat4 orientation, const fl
     // Constants to govern camera speed
     Camera::vel_magnitude = MIN_VELOCITY;
     Camera::acc_magnitude = 25.0;
-    Camera::jerk_magnitude = 5.0;
+    Camera::jerk_magnitude = 15.0;
     Camera::farClip = farClip;
 }
 

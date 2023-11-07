@@ -156,6 +156,12 @@ void Shader::setFloat(const std::string &name, float value) const
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
+void Shader::setVec3(const std::string &name, const glm::vec3& vec)
+{
+    uint uniformID = glGetUniformLocation(this->ID, name.c_str());
+    glUniform3fv(uniformID, 1, glm::value_ptr(vec));
+}
+
 int Shader::getUniform(const char *name)
 {
     return glGetUniformLocation(this->ID, name);
