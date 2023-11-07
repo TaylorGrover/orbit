@@ -31,11 +31,18 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
 
     gravConstantSpin = new QDoubleSpinBox;
     gravConstantSpin->setRange(-10000, 10000);
-    gravConstantSpin->setValue(6.674f);
+    gravConstantSpin->setValue(6.674e-11);
+    gravConstantSpin->setDecimals(14);
 
     densitySpin = new QDoubleSpinBox;
-    densitySpin->setRange(-100, 100);
+    densitySpin->setRange(-1000000, 1000000);
     densitySpin->setValue(0.8);
+    densitySpin->setSingleStep(.1);
+
+    // Radii scaling for light sources (suns)
+    sunRadiusScaleSpin = new QDoubleSpinBox;
+    sunRadiusScaleSpin->setRange(0.001, 10000);
+    sunRadiusScaleSpin->setValue(4.0);
 
     // Standard deviation of normally distributed locations
     initialLocationSpin = new QDoubleSpinBox;
@@ -80,6 +87,7 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     paramLayout->addRow("Number of spheres: ", countSpin);
     paramLayout->addRow("Gravitational constant (G): ", gravConstantSpin);
     paramLayout->addRow("Sphere density: ", densitySpin);
+    paramLayout->addRow("Sun radius relative scaling: ", sunRadiusScaleSpin);
     paramLayout->addRow("Standard dev. of initial |distance|: ", initialLocationSpin);
     paramLayout->addRow("Standard dev. of initial |velocity|: ", initialVelocitySpin);
     paramLayout->addRow("Uniform distribution of radii", radiiWidget);
@@ -175,6 +183,7 @@ void SettingsDialog::setParameters()
     paramManager.setRandSeed(randomSeedSpin->value());
     paramManager.setAmbientPalette(colorPalette);
     paramManager.setSphereCount(countSpin->value());
+    paramManager.setSunScale(sunRadiusScaleSpin->value());
     writeSettings();
     paramManager.printParameters();
     this->accept();
@@ -190,7 +199,8 @@ void SettingsDialog::readSettings()
 
     settings.beginGroup("SettingsDialog");
     gravConstantSpin->setValue(settings.value("gravitationalConstant", 6.674).toDouble());
-    densitySpin->setValue(settings.value("densitySpin", 0.8).toDouble());
+    densitySpin->setValue(settings.value("sphereDensity", 0.8).toDouble());
+    sunRadiusScaleSpin->setValue(settings.value("sunScale", 4.0).toDouble());
     initialVelocitySpin->setValue(settings.value("velocitySD", 2.5).toDouble());
     initialLocationSpin->setValue(settings.value("locationSD", 200).toDouble());
     radiiLower->setValue(settings.value("radiiLower", 1).toDouble());
@@ -211,6 +221,7 @@ void SettingsDialog::writeSettings()
     settings.beginGroup("SettingsDialog");
     settings.setValue("gravitationalConstant", gravConstantSpin->value());
     settings.setValue("sphereDensity", densitySpin->value());
+    settings.setValue("sunScale", sunRadiusScaleSpin->value());
     settings.setValue("velocitySD", initialVelocitySpin->value());
     settings.setValue("locationSD", initialLocationSpin->value());
     settings.setValue("radiiLower", radiiLower->value());

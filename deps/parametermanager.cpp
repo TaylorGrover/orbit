@@ -61,6 +61,11 @@ void ParameterManager::setDensity(float density)
     ParameterManager::density = density;
 }
 
+void ParameterManager::setSunScale(float scale)
+{
+    sunScale = scale;
+}
+
 // Getters
 float ParameterManager::getGravitationalConstant() const {
     return G;
@@ -109,6 +114,11 @@ float ParameterManager::getRadiiUpperBound() const
 float ParameterManager::getDensity() const
 {
     return density;
+}
+
+float ParameterManager::getSunScale() const
+{
+    return sunScale;
 }
 
 void ParameterManager::printParameters() const

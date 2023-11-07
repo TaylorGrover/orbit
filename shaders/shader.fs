@@ -22,6 +22,7 @@ uniform int remainingLights = NUM_ENTITIES;
 
 uniform vec3 modelColors[NUM_ENTITIES];
 uniform vec3 locations[NUM_ENTITIES];
+uniform float radii[NUM_ENTITIES];
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 uint hash( uint x ) {
@@ -77,7 +78,8 @@ void main()
         for(int i = 0; i < remainingLights; i++) {
             vec3 loc = locations[lightSourceIndices[i]];
             difference = loc - ourPos;
-            float len = length(difference);
+            float len = length(difference) - radii[i] - radii[instanceID];
+            //float len = length(difference);
             float preDiffuse = max(dot(normalize(difference), ourNorm), 0.0);
             diffuse += 1 / (1 + k * len * len) * preDiffuse * ambientColor * modelColors[lightSourceIndices[i]];
         }

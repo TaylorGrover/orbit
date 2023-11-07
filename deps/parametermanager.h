@@ -19,6 +19,9 @@ class ParameterManager
     // Density of spheres
     float density;
 
+    // Relative sun scaling
+    float sunScale;
+
     // Standard deviations for normally distribution locations and velocity
     //  centered at 0
     float velocitySD;
@@ -50,6 +53,7 @@ public:
     void setRadiiLower(float);
     void setRadiiUpper(float);
     void setDensity(float);
+    void setSunScale(float);
     void setAmbientPalette(QColor);
 
     // Prints all parameters
@@ -63,6 +67,7 @@ public:
     float getRadiiUpperBound() const;
     float getSphereDensity() const;
     float getDensity() const;
+    float getSunScale() const;
     int   getRandSeed() const;
     int   getSphereCount() const;
     QColor getAmbientPalette() const;

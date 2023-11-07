@@ -26,6 +26,7 @@ private:
     QDoubleSpinBox *initialLocationSpin;
     QDoubleSpinBox *radiiLower, *radiiUpper;
     QDoubleSpinBox *lightFractionSpin;
+    QDoubleSpinBox *sunRadiusScaleSpin;
     QSpinBox *randomSeedSpin;
     QSpinBox *countSpin;
     QPushButton* colorSelectButton;

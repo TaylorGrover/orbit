@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
         keyCursorInput.resetDiff();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.0f, 0.05, 0.05, 1.0f);
+        glClearColor(0.0f, 0.01, 0.01, 1.0f);
 
         next = (float) glfwGetTime();
         duration = next - prev;

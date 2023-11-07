@@ -143,7 +143,7 @@ void SphereManager::initializeSpheres(std::default_random_engine& randEngine, Pa
                 colors[i][j] = color_dist[j](randEngine);
             }
         }
-        radii.push_back(isLightSource[i] ? 4 * radii_dist(randEngine) : radii_dist(randEngine));
+        radii.push_back(isLightSource[i] ? paramManager.getSunScale() * radii_dist(randEngine) : radii_dist(randEngine));
         models.push_back(glm::translate(glm::mat4(1.0), locations[i]));
         models[i] = glm::scale(models[i], glm::vec3(radii[i]));
         normals.push_back(glm::mat3(glm::transpose(glm::inverse(models[i]))));
@@ -171,6 +171,7 @@ void SphereManager::setShaderUniforms(glm::mat4& view, glm::mat4& projection)
     shader.setMat3Array("normals", normals.data(), normals.size());
     shader.setIntArray("isLightSource", isLightSource.data(), isLightSource.size());
     shader.setIntArray("lightSourceIndices", lightSourceIndices.data(), lightSourceIndices.size());
+    shader.setFloatArray("radii", radii.data(), radii.size());
     shader.setInt("remainingLights", (int) lightSourceIndices.size());
     shader.setVec3("ambientColor", ambientColor);
 }
@@ -255,6 +256,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 float k = G / (len * len); // G / r^2
                 accelerations[i] += masses[j] * k * norm;
                 accelerations[j] += -masses[i] * k * norm;
+                //std::cout << accelerations[i].x << std::endl;
             }
         }
     }
