@@ -1,5 +1,7 @@
 #include <spheremanager.hpp>
 
+#define LARGE_SPHERE
+
 template <typename MatType, GLuint N>
 void printMatrix(MatType& matrix)
 {
@@ -118,6 +120,9 @@ void SphereManager::initializeSpheres(std::default_random_engine& randEngine, Pa
 
     // Initialize the distributions to generate the models
     std::uniform_real_distribution<float> radii_dist(paramManager.getRadiiLowerBound(), paramManager.getRadiiUpperBound());
+    // Generate angles theta and phi for location and velocity unit vectors
+    std::uniform_real_distribution<float> theta_dist(0, 2 * M_PI);
+    std::uniform_real_distribution<float> phi_dist(0, M_PI);
     std::normal_distribution<float> locations_dist(0, paramManager.getLocationSD());
     std::normal_distribution<float> velocities_dist(0, paramManager.getVelocitySD());
     std::uniform_real_distribution<float> light_dist(0, 1);
@@ -127,15 +132,25 @@ void SphereManager::initializeSpheres(std::default_random_engine& randEngine, Pa
         0.8, 1.0
     );
     GLuint i, j;
+    float theta, phi;
     for(i = 0; i < N; i++) {
         isLightSource.push_back(light_dist(randEngine) <= paramManager.getLightFraction());
+        theta = theta_dist(randEngine);
+        phi = phi_dist(randEngine);
+#ifdef LARGE_SPHERE
+        locations.push_back(paramManager.getLocationSD() * glm::vec3(cos(theta) * sin(phi), sin(theta) * sin(phi), cos(phi)));
+#else
         locations.push_back(glm::vec3(0.0));
-        velocities.push_back(glm::vec3(0.0));
+#endif
+        theta = theta_dist(randEngine);
+        phi = phi_dist(randEngine);
+        velocities.push_back(velocities_dist(randEngine) * glm::vec3(cos(theta) * sin(phi), sin(theta) * sin(phi), cos(phi)));
         accelerations.push_back(glm::vec3(0.0));
         colors.push_back(glm::vec3(0.0));
         for(j = 0; j < 3; j++) {
+#ifndef LARGE_SPHERE
             locations[i][j] = locations_dist(randEngine);
-            velocities[i][j] = velocities_dist(randEngine);
+#endif
             if(isLightSource[i]) {
                 colors[i][j] = 1;
             }

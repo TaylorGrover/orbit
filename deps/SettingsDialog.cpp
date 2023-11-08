@@ -59,10 +59,10 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     QHBoxLayout* radiiLayout = new QHBoxLayout(radiiWidget);
     radiiLower = new QDoubleSpinBox;
     radiiUpper = new QDoubleSpinBox;
-    float lowerBound = 1.0, upperBound = 50.0;
-    radiiLower->setRange(lowerBound, upperBound - 1);
+    float lowerBound = 1.0, upperBound = 100.0;
+    radiiLower->setRange(lowerBound, upperBound);
     radiiLower->setValue(1.0);
-    radiiUpper->setRange(lowerBound + 1, upperBound);
+    radiiUpper->setRange(lowerBound, upperBound);
     radiiUpper->setValue(5.0);
     radiiLayout->addWidget(radiiLower);
     radiiLayout->addWidget(radiiUpper);
@@ -73,7 +73,8 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     lightFractionSpin = new QDoubleSpinBox;
     lightFractionSpin->setRange(0, 1);
     lightFractionSpin->setValue(.1);
-    lightFractionSpin->setSingleStep(.05);
+    lightFractionSpin->setSingleStep(.0001);
+    lightFractionSpin->setDecimals(4);
 
     // Color picker button
     colorSelectButton = new QPushButton;
@@ -84,6 +85,9 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     randomSeedSpin->setRange(0, INT_MAX);
     randomSeedSpin->setValue(23);
 
+    // Fullscreen checkbox
+    fullscreenCheckBox = new QCheckBox;
+
     paramLayout->addRow("Number of spheres: ", countSpin);
     paramLayout->addRow("Gravitational constant (G): ", gravConstantSpin);
     paramLayout->addRow("Sphere density: ", densitySpin);
@@ -92,8 +96,9 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     paramLayout->addRow("Standard dev. of initial |velocity|: ", initialVelocitySpin);
     paramLayout->addRow("Uniform distribution of radii", radiiWidget);
     paramLayout->addRow("Light fraction spin: ", lightFractionSpin);
-    paramLayout->addRow("Color palette: ", colorSelectButton);
+    paramLayout->addRow("Ambient color: ", colorSelectButton);
     paramLayout->addRow("Seed: ", randomSeedSpin);
+    paramLayout->addRow("Fullscreen: ", fullscreenCheckBox);
 
     lowerLayout->addWidget(startCloseWidget);
 
@@ -151,8 +156,8 @@ void SettingsDialog::updateColorSelect()
  */
 void SettingsDialog::updateRadiiUpper()
 {
-    if(radiiUpper->value() <= radiiLower->value()) {
-        radiiUpper->setValue(radiiLower->value() + 1);
+    if(radiiUpper->value() < radiiLower->value()) {
+        radiiUpper->setValue(radiiLower->value());
     }
 }
 
@@ -161,8 +166,8 @@ void SettingsDialog::updateRadiiUpper()
  */
 void SettingsDialog::updateRadiiLower()
 {
-    if(radiiUpper->value() <= radiiLower->value()) {
-        radiiLower->setValue(radiiLower->value() - 1);
+    if(radiiUpper->value() < radiiLower->value()) {
+        radiiLower->setValue(radiiUpper->value());
     }
 }
 
@@ -184,6 +189,7 @@ void SettingsDialog::setParameters()
     paramManager.setAmbientPalette(colorPalette);
     paramManager.setSphereCount(countSpin->value());
     paramManager.setSunScale(sunRadiusScaleSpin->value());
+    paramManager.setFullscreenChecked(fullscreenCheckBox->isChecked());
     writeSettings();
     paramManager.printParameters();
     this->accept();
@@ -209,7 +215,8 @@ void SettingsDialog::readSettings()
     randomSeedSpin->setValue(settings.value("randomSeed", 23).toInt());
     countSpin->setValue(settings.value("sphereCount", 16).toInt());
     colorPalette = settings.value("ambientColor", QColor(255, 255, 255)).value<QColor>();
-    std::cout << colorPalette.red() << " " << colorPalette.green() << " " << colorPalette.blue() << std::endl;
+    fullscreenCheckBox->setChecked(settings.value("fullScreenChecked", true).toBool());
+    //std::cout << colorPalette.red() << " " << colorPalette.green() << " " << colorPalette.blue() << std::endl;
     settings.endGroup();
     updateColorSelect();
 }
@@ -230,5 +237,6 @@ void SettingsDialog::writeSettings()
     settings.setValue("randomSeed", randomSeedSpin->value());
     settings.setValue("sphereCount", countSpin->value());
     settings.setValue("ambientColor", colorPalette);
+    settings.setValue("fullScreenChecked", fullscreenCheckBox->isChecked());
     settings.endGroup();
 }

@@ -48,7 +48,7 @@ const float FAR = 5000;
 #ifdef DEBUG_ON
 glm::vec3 camera_position(0.0, -50.0, 0.0);
 #else
-glm::vec3 camera_position(0.0, 0.0, -500.0);
+glm::vec3 camera_position(0.0, 0.0, 0.0);
 glm::mat4 camera_orientation = glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0));
 #endif
 
@@ -117,8 +117,13 @@ int main(int argc, char* argv[])
     // glfwWindowHint calls
     configureWindowHints();
 
-    //GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
+    GLFWwindow* window;
+    if(paramManager.getFullscreenChecked()) {
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, glfwGetPrimaryMonitor(), NULL);
+    }
+    else {
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    }
     if(window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

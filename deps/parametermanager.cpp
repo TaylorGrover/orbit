@@ -66,6 +66,11 @@ void ParameterManager::setSunScale(float scale)
     sunScale = scale;
 }
 
+void ParameterManager::setFullscreenChecked(bool isFullscreen)
+{
+    fullScreenChecked = isFullscreen;
+}
+
 // Getters
 float ParameterManager::getGravitationalConstant() const {
     return G;
@@ -121,6 +126,11 @@ float ParameterManager::getSunScale() const
     return sunScale;
 }
 
+bool ParameterManager::getFullscreenChecked() const
+{
+    return fullScreenChecked;
+}
+
 void ParameterManager::printParameters() const
 {
     std::cout << "G: " << G << std::endl;
@@ -131,4 +141,5 @@ void ParameterManager::printParameters() const
     std::cout << "lightFraction: " << lightFraction << std::endl;
     std::cout << "randSeed: " << randSeed << std::endl;
     std::cout << "sphereCount: " << sphereCount << std::endl;
+    std::cout << "fullScreen: " << fullScreenChecked << std::endl;
 }

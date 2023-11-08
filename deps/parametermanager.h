@@ -34,6 +34,8 @@ class ParameterManager
     int randSeed;
     int sphereCount;
 
+    bool fullScreenChecked;
+
     QColor ambientColorPalette;
 
 public:
@@ -55,6 +57,7 @@ public:
     void setDensity(float);
     void setSunScale(float);
     void setAmbientPalette(QColor);
+    void setFullscreenChecked(bool);
 
     // Prints all parameters
     void printParameters() const;
@@ -68,6 +71,7 @@ public:
     float getSphereDensity() const;
     float getDensity() const;
     float getSunScale() const;
+    bool getFullscreenChecked() const;
     int   getRandSeed() const;
     int   getSphereCount() const;
     QColor getAmbientPalette() const;

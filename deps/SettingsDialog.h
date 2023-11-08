@@ -6,6 +6,7 @@
 #include <qt5/QtCore/QString>
 #include <qt5/QtGui/QKeyEvent>
 #include <qt5/QtWidgets/QColorDialog>
+#include <qt5/QtWidgets/QCheckBox>
 #include <qt5/QtWidgets/QDialog>
 #include <qt5/QtWidgets/QDoubleSpinBox>
 #include <qt5/QtWidgets/QFormLayout>
@@ -27,6 +28,7 @@ private:
     QDoubleSpinBox *radiiLower, *radiiUpper;
     QDoubleSpinBox *lightFractionSpin;
     QDoubleSpinBox *sunRadiusScaleSpin;
+    QCheckBox *fullscreenCheckBox;
     QSpinBox *randomSeedSpin;
     QSpinBox *countSpin;
     QPushButton* colorSelectButton;
