@@ -124,6 +124,8 @@ set(Orbit_CONFIG_PATH "${CMAKE_INSTALL_LIBDIR}/cmake/glfw3")
 #--------------------------------------
 # Libraries to include in compilation
 #--------------------------------------
+set(CALLBACK_MANAGER "${Orbit_SOURCE_DIR}/deps/callbackmanager.cpp"
+                     "${Orbit_SOURCE_DIR}/deps/callbackmanager.h")
 set(CAMERA "${Orbit_SOURCE_DIR}/deps/camera.cpp"
            "${Orbit_SOURCE_DIR}/deps/camera.hpp")
 set(GLAD_GL "${Orbit_SOURCE_DIR}/deps/glad/gl.h")

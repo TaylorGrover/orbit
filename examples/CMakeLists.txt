@@ -21,7 +21,7 @@ endif()
 # Add GLAD
 add_library(glad "${Orbit_SOURCE_DIR}/src/glad.c")
 
-add_executable(gravity WIN32 MACOSX_BUNDLE gravity.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT} ${ENTITY} ${SPHERE} ${SPHERE_MANAGER} ${SIM_SETTINGS} ${PARAMETER_MANAGER})
+add_executable(gravity WIN32 MACOSX_BUNDLE gravity.cpp ${ICON} ${GLAD_GL} ${SHADER} ${CAMERA} ${INPUT} ${ENTITY} ${SPHERE} ${SPHERE_MANAGER} ${SIM_SETTINGS} ${PARAMETER_MANAGER} ${CALLBACK_MANAGER})
 add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${SHADER} ${INPUT})
 add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 

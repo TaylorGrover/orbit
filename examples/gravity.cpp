@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <callbackmanager.h>
 #include <cmath>
 #include <camera.hpp>
 #include <entity.hpp>
@@ -30,8 +31,6 @@
 const GLuint SCR_WIDTH = 2400;
 const GLuint SCR_HEIGHT = 1600;
 
-const GLuint NUM_SPHERES = 1 << 8;
-
 const char *WINDOW_TITLE = "Gravity";
 const char *VERTEX_PATH = "shaders/shader.vs";
 const char *FRAG_PATH = "shaders/shader.fs";
@@ -45,18 +44,14 @@ const float NEAR = 0.01f;
 const float FAR = 5000;
 
 // Starting camera position
-#ifdef DEBUG_ON
-glm::vec3 camera_position(0.0, -50.0, 0.0);
-#else
-glm::vec3 camera_position(0.0, 0.0, 0.0);
-glm::mat4 camera_orientation = glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0));
-#endif
+glm::vec3 cameraPosition(0.0, 0.0, 0.0);
+glm::mat4 cameraOrientation = glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0));
 
 // Cursor and keyboard input handling
 Input keyCursorInput(SCR_WIDTH, SCR_HEIGHT);
 
 // Camera rotation globals
-Camera camera(keyCursorInput, camera_position, camera_orientation, FAR);
+Camera camera(keyCursorInput, cameraPosition, cameraOrientation);
 
 void configureWindowHints()
 {
@@ -76,17 +71,17 @@ void configureWindowHints()
 #endif
 }
 
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     keyCursorInput.keyCallback(window, key, scancode, action, mods);
 }
 
-static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
     keyCursorInput.cursorPositionCallback(window, xpos, ypos);
 }
 
-static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     // ensure viewport matches new window dimensions; note that width and 
     //   height will be signficantly larger than specified on retina displays
@@ -107,7 +102,6 @@ int main(int argc, char* argv[])
     if(settingsDialog.result() == QDialog::Rejected) {
         return 0;
     }
-    //paramManager.setParametersFromDialog(settingsDialog);
 
     if(!glfwInit()) {
         std::cerr << "Unable to initialize GLFW\n";

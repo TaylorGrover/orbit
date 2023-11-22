@@ -1,6 +1,6 @@
 #include <spheremanager.hpp>
 
-#define LARGE_SPHERE
+#define LARGE_SPHER
 
 template <typename MatType, GLuint N>
 void printMatrix(MatType& matrix)

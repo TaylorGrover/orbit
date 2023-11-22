@@ -95,7 +95,7 @@ SettingsDialog::SettingsDialog(ParameterManager& paramManager) : paramManager(pa
     paramLayout->addRow("Standard dev. of initial |distance|: ", initialLocationSpin);
     paramLayout->addRow("Standard dev. of initial |velocity|: ", initialVelocitySpin);
     paramLayout->addRow("Uniform distribution of radii", radiiWidget);
-    paramLayout->addRow("Light fraction spin: ", lightFractionSpin);
+    paramLayout->addRow("Light fraction: ", lightFractionSpin);
     paramLayout->addRow("Ambient color: ", colorSelectButton);
     paramLayout->addRow("Seed: ", randomSeedSpin);
     paramLayout->addRow("Fullscreen: ", fullscreenCheckBox);
