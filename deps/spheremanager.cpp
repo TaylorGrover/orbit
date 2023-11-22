@@ -226,7 +226,7 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 // Conserve momentum
                 glm::vec3 newVel = (velocities[i] * masses[i] + velocities[j] * masses[j]) / newMass;
                 int eraseIndex, keepIndex;
-                if(isLightSource[i]) {
+                if(isLightSource[i] || radii[i] > radii[j]) {
                     // Delete j, because light source absorbs all
                     keepIndex = i;
                     eraseIndex = j;
