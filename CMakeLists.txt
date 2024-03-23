@@ -15,7 +15,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" Orbit_STANDALONE)
 
 # Set use g++-10
-# set(CMAKE_CXX_COMPILER /usr/bin/g++-10)
+set(CMAKE_CXX_COMPILER /usr/bin/g++-10)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(Orbit_BUILD_TESTS "Build the GLFW test programs" ${Orbit_STANDALONE})
@@ -26,6 +26,7 @@ option(Orbit_INSTALL "Generate installation target" ON)
 include(GNUInstallDirs)
 include(CMakeDependentOption)
 include(CTest) # Include CTest https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html
+enable_testing()
 
 # Include directory visibility for tests and examples
 include_directories("${Orbit_SOURCE_DIR}/deps" "${Orbit_SOURCE_DIR}/include" "/usr/include/x86_64-linux-gnu/qt5")
@@ -66,7 +67,7 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-arcs -ftest-coverage")
 
-#set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
+set_target_properties(Qt5::Core PROPERTIES MAP_IMPORTED_CONFIG_COVERAGE "RELEASE")
 
 if (Orbit_BUILD_DOCS)
     set(DOXYGEN_SKIP_DOT TRUE)

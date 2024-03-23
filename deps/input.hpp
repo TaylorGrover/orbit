@@ -27,8 +27,11 @@ class Input {
     public:
         Input();
         Input(GLuint scr_width, GLuint scr_height);
+        void setWidth(GLuint scrWidth);
+        void setHeight(GLuint scrHeight);
         void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+        void mouseButtonCallback(GLFWwindow* window, int button, int actions, int mods);
         void setKey(int key);
         void setToggle(int key);
         void unsetKey(int key);

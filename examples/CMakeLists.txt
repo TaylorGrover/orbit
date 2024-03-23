@@ -26,14 +26,15 @@ add_executable(paletteGL WIN32 MACOSX_BUNDLE paletteGL.cpp ${ICON} ${GLAD_GL} ${
 add_executable(perlin WIN32 MACOSX_BUNDLE perlin.cpp ${ICON} ${GLAD_GL} ${SHADER})
 
 # Target link library for custom app
-target_link_libraries(gravity PRIVATE glad ${CMAKE_DL_LIBS} Qt5::Widgets)
+find_library(LIBRT rt)
+target_link_libraries(gravity PRIVATE glad ${CMAKE_DL_LIBS} Qt5::Widgets ${LIBRT})
 target_link_libraries(paletteGL PRIVATE glad ${CMAKE_DL_LIBS})
 target_link_libraries(perlin PRIVATE glad ${CMAKE_DL_LIBS})
 
 # Automoc for Qt applications
 set_property(TARGET gravity PROPERTY AUTOMOC ON)
 
-target_compile_options(gravity PRIVATE "-Wall" "-g" "-std=c++2a")
+target_compile_options(gravity PRIVATE "-Wall" "-g" "-std=c++11")
 target_compile_options(paletteGL PRIVATE "-Wall" "-g" "-std=c++2a")
 target_compile_options(perlin PRIVATE "-Wall" "-g" "-std=c++2a")
 

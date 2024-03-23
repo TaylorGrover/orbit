@@ -1,6 +1,5 @@
 #include <iostream>
 #include <chrono>
-#include <callbackmanager.h>
 #include <cmath>
 #include <camera.hpp>
 #include <entity.hpp>
@@ -81,6 +80,11 @@ void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
     keyCursorInput.cursorPositionCallback(window, xpos, ypos);
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    keyCursorInput.mouseButtonCallback(window, button, action, mods);
+}
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     // ensure viewport matches new window dimensions; note that width and 
@@ -88,6 +92,29 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     // Specify location of the lower left corner of the first (x, y), then
     //   the dimensions
     glViewport(0, 0, width, height);
+}
+
+void gravitateCamera(SphereManager& sphereManager, float G, float duration)
+{
+    glm::vec3 position = camera.getPosition();
+    glm::vec3 velocity = camera.getVelocity();
+    glm::vec3 acceleration(0.0f);
+    std::vector<float> masses = sphereManager.getMasses();
+    std::vector<glm::vec3> locations = sphereManager.getLocations();
+    glm::vec3 diff, norm;
+    float len, k;
+    for(int i = 0; i < (int) locations.size(); i++) {
+        diff = -(locations[i] + position);
+        len = glm::length(diff);
+        norm = diff / len;
+        k = G / (len * len);
+        acceleration += masses[i] * k * norm;
+    }
+    velocity += duration * acceleration;
+    position += duration * velocity;
+    //std::cout << diff.x << ", " << diff.y << ", " << diff.z << std::endl;
+    camera.updatePositionExternal(position);
+    camera.updateVelocityExternal(velocity);
 }
 
 int main(int argc, char* argv[])
@@ -125,8 +152,9 @@ int main(int argc, char* argv[])
     }
 
 
-    // Register events callback
+    // Register events callbacks
     glfwSetKeyCallback(window, keyCallback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // Capture cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -159,6 +187,9 @@ int main(int argc, char* argv[])
     std::default_random_engine rand_engine(paramManager.getRandSeed());
     sphereManager.initializeSpheres(rand_engine, paramManager);
 
+    // TODO: FIND APPROPRIATE ABSTRACTION
+    // Vertices for laser beams
+
     // Camera
     glm::mat4 view(1.0); // The view (camera)
 
@@ -177,7 +208,7 @@ int main(int argc, char* argv[])
     while(!glfwWindowShouldClose(window)) {
         // Adjust camera position and orientation as needed
         camera.updateCameraOrientation(duration);
-        camera.updatePosition(duration);
+        camera.updatePositionRegular(duration);
         view = camera.getView();
         
         keyCursorInput.resetDiff();
@@ -193,6 +224,7 @@ int main(int argc, char* argv[])
             accumulator += duration;
             sphereManager.gravitateSerialAbsorbCollisions(duration);
         }
+        gravitateCamera(sphereManager, paramManager.getGravitationalConstant(), duration);
         sphereManager.bindVertexArray();
         sphereManager.setShaderUniforms(view, projection);
         sphereManager.useShader();

@@ -1,18 +1,19 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'SettingsDialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.8)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
+#include <memory>
 #include "../../../deps/SettingsDialog.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'SettingsDialog.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.12.8. It"
+#error "This file was generated using the moc from 5.15.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -83,7 +84,7 @@ void SettingsDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         auto *_t = static_cast<SettingsDialog *>(_o);
-        Q_UNUSED(_t)
+        (void)_t;
         switch (_id) {
         case 0: _t->selectColorPalette(); break;
         case 1: _t->updateRadiiUpper(); break;
@@ -94,11 +95,11 @@ void SettingsDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         default: ;
         }
     }
-    Q_UNUSED(_a);
+    (void)_a;
 }
 
 QT_INIT_METAOBJECT const QMetaObject SettingsDialog::staticMetaObject = { {
-    &QDialog::staticMetaObject,
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
     qt_meta_stringdata_SettingsDialog.data,
     qt_meta_data_SettingsDialog,
     qt_static_metacall,

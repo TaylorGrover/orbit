@@ -14,7 +14,7 @@ CostDataFile:
 Site: jonaz-17Z90N-R-AAC8U1
 
 # Build name is osname-revision-compiler, i.e. Linux-2.4.2-2smp-c++
-BuildName: Linux-g++-9
+BuildName: Linux-g++-10
 
 # Subprojects
 LabelsForSubprojects: 
@@ -63,7 +63,7 @@ UpdateOptions:
 UpdateType: git
 
 # Compiler info
-Compiler: /usr/bin/g++-9
+Compiler: /usr/bin/g++-10
 CompilerVersion: 9.4.0
 
 # Dynamic analysis (MemCheck)

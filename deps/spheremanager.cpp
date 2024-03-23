@@ -271,7 +271,6 @@ void SphereManager::gravitateSerialAbsorbCollisions(float duration)
                 float k = G / (len * len); // G / r^2
                 accelerations[i] += masses[j] * k * norm;
                 accelerations[j] += -masses[i] * k * norm;
-                //std::cout << accelerations[i].x << std::endl;
             }
         }
     }
@@ -291,4 +290,14 @@ std::vector<GLuint>& SphereManager::getIndices()
 GLuint SphereManager::getSphereCount()
 {
     return models.size();
+}
+
+std::vector<glm::vec3>& SphereManager::getLocations()
+{
+    return locations;
+}
+
+std::vector<float>& SphereManager::getMasses()
+{
+    return masses;
 }

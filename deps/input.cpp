@@ -40,6 +40,13 @@ void Input::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
     cursor_y = ypos;
 }
 
+void Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+       printf("left\n");
+   }
+}
+
 void Input::setKey(int key) 
 {
     Input::pressed[key] = true;

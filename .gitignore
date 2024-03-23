@@ -70,6 +70,8 @@ examples/*.app
 examples/*.exe
 examples/boing
 examples/gears
+examples/gravity_autogen
+examples/gravity_autogen/*
 examples/heightmap
 examples/offscreen
 examples/particles

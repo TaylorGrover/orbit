@@ -53,7 +53,7 @@ glm::mat4 Camera::getView()
 /**
  * Update the camera position vector following key press and release events
 */
-void Camera::updatePosition(float duration)
+void Camera::updatePositionGodMode(float duration)
 {
     // This avoids large sequence of if-statements in while loop
     // Not sure if any substantial trade-offs
@@ -76,14 +76,32 @@ void Camera::updatePosition(float duration)
     position += (float) c * (vel_magnitude * camera_up * duration);
     acc_magnitude = ((w || s || a || d || f || c) && shift) * jerk_magnitude * duration + acc_magnitude;
     vel_magnitude = ((w || s || a || d || f || c) && shift) * acc_magnitude * duration + vel_magnitude;
-    orientation = glm::rotate(orientation, -glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * q), camera_back);
-    orientation = glm::rotate(orientation, glm::radians(10 * CAMERA_ROTATION_VELOCITY * duration * e), camera_back);
+    orientation = glm::rotate(orientation, -glm::radians(CAMERA_ROTATION_VELOCITY * duration * q), camera_back);
+    orientation = glm::rotate(orientation, glm::radians(CAMERA_ROTATION_VELOCITY * duration * e), camera_back);
     if(space) {
         acc_magnitude = MIN_ACCELERATION;
         vel_magnitude = MIN_VELOCITY;
     }
 }
 
+void Camera::updatePositionRegular(float duration)
+{
+    bool w;
+    w = input.isKeyPressed(GLFW_KEY_W);
+    velocity += (float) w * (acc_magnitude * camera_back * duration);
+    position += velocity * duration;
+}
+
+void Camera::updatePositionExternal(glm::vec3 pos) {
+    position = pos;
+}
+
+void Camera::updateVelocityExternal(glm::vec3 vel) {
+    velocity = vel;
+}
+
 glm::vec3 Camera::getBack() { return camera_back; }
 glm::vec3 Camera::getRight() { return camera_right; }
 glm::vec3 Camera::getUp() { return camera_up; }
+glm::vec3 Camera::getPosition() { return position; }
+glm::vec3 Camera::getVelocity() { return velocity; }

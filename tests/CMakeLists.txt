@@ -22,5 +22,7 @@ set(TINYCTHREAD "${GLFW_SOURCE_DIR}/deps/tinycthread.h"
 add_executable(test_glm WIN32 MACOSX_BUNDLE test_glm.cpp)
 add_executable(test_input WIN32 MACOSX_BUNDLE test_input.cpp ${INPUT})
 
-add_test(NAME GLMTest COMMAND test_glm)
+add_test(NAME GLMTest COMMAND test_glm )
 add_test(NAME InputTest COMMAND test_input)
+
+# set_tests_properties(GLMTest PROPERTIES ENVIRONMENT "BOOST_TEST_LOG_LEVEL=all")

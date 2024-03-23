@@ -15,7 +15,6 @@
  * To enable instancing, this contains all the relevant buffers, the 
  * model/normal matrices, and the entity shader. This also contains 
  * calls to bind the vertex array object.
- * TODO: VAO, VBO, and EBO belong to SphereManager, not Entity
 */
 class SphereManager
 {
@@ -55,7 +54,8 @@ public:
     void initializeSpheres(std::default_random_engine& randEngine, ParameterManager& paramManager);
     void gravitateSerialAbsorbCollisions(float duration);
     void gravitateParallel();
-
+    std::vector<glm::vec3>& getLocations();
+    std::vector<float>& getMasses();
     std::vector<GLuint>& getIndices();
     GLuint getSphereCount();
     

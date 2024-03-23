@@ -67,7 +67,7 @@ void main()
     vec3 ourColor = modelColors[instanceID];
 
     // ambient light strength
-    float ambientStrength = .1;
+    float ambientStrength = .2;
     vec3 ambient = ambientStrength * ambientColor;
 
     // Combine the texture with the positional color scheme

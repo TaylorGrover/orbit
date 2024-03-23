@@ -4,7 +4,6 @@
 #include <qt5/QtCore/QObject>
 #include <qt5/QtCore/QSettings>
 #include <qt5/QtCore/QString>
-#include <qt5/QtGui/QKeyEvent>
 #include <qt5/QtWidgets/QColorDialog>
 #include <qt5/QtWidgets/QCheckBox>
 #include <qt5/QtWidgets/QDialog>
